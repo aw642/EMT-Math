@@ -1,0 +1,3192 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage{eumat}
+
+\begin{document}
+\begin{eulernotebook}
+\begin{eulercomment}
+Raffi Dinan Cahya Purnama\\
+22305141021\\
+Matematika E 2022
+
+
+\begin{eulercomment}
+\eulerheading{Kalkulus dengan EMT}
+\begin{eulercomment}
+Materi Kalkulus mencakup di antaranya:
+
+- Fungsi (fungsi aljabar, trigonometri, eksponensial, logaritma,
+komposisi fungsi)\\
+- Limit Fungsi,\\
+- Turunan Fungsi,\\
+- Integral Tak Tentu,\\
+- Integral Tentu dan Aplikasinya,\\
+- Barisan dan Deret (kekonvergenan barisan dan deret).
+
+EMT (bersama Maxima) dapat digunakan untuk melakukan semua perhitungan
+di dalam kalkulus, baik secara numerik maupun analitik (eksak).
+
+\end{eulercomment}
+\eulersubheading{Mendefinisikan Fungsi}
+\begin{eulercomment}
+Terdapat beberapa cara mendefinisikan fungsi pada EMT, yakni:
+
+- Menggunakan format nama\_fungsi := rumus fungsi (untuk fungsi
+numerik),\\
+- Menggunakan format nama\_fungsi \&= rumus fungsi (untuk fungsi
+simbolik, namun dapat dihitung secara numerik),\\
+- Menggunakan format nama\_fungsi \&\&= rumus fungsi (untuk fungsi
+simbolik murni, tidak dapat dihitung langsung),\\
+- Fungsi sebagai program EMT.
+
+Setiap format harus diawali dengan perintah function (bukan sebagai
+ekspresi).
+
+Berikut adalah adalah beberapa contoh cara mendefinisikan fungsi.
+\end{eulercomment}
+\begin{eulerprompt}
+>function f(x) := 2*x^2+exp(sin(x)) // fungsi numerik
+>f(0), f(1), f(pi)
+\end{eulerprompt}
+\begin{euleroutput}
+  1
+  4.31977682472
+  20.7392088022
+\end{euleroutput}
+\begin{eulerprompt}
+>function g(x) := sqrt(x^2-3*x)/(x+1)
+>g(3)
+\end{eulerprompt}
+\begin{euleroutput}
+  0
+\end{euleroutput}
+\begin{eulerprompt}
+>g(0)
+\end{eulerprompt}
+\begin{euleroutput}
+  0
+\end{euleroutput}
+\begin{eulerprompt}
+>g(1)
+\end{eulerprompt}
+\begin{euleroutput}
+  Floating point error!
+  Error in sqrt
+  Try "trace errors" to inspect local variables after errors.
+  g:
+      useglobal; return sqrt(x^2-3*x)/(x+1) 
+  Error in:
+  g(1) ...
+      ^
+\end{euleroutput}
+\begin{eulerprompt}
+>f(g(5)) // komposisi fungsi
+\end{eulerprompt}
+\begin{euleroutput}
+  2.20920171961
+\end{euleroutput}
+\begin{eulerprompt}
+>g(f(5))
+\end{eulerprompt}
+\begin{euleroutput}
+  0.950898070639
+\end{euleroutput}
+\begin{eulerprompt}
+>f(0:10) // nilai-nilai f(1), f(2), ..., f(10)
+\end{eulerprompt}
+\begin{euleroutput}
+  [1,  4.31978,  10.4826,  19.1516,  32.4692,  50.3833,  72.7562,
+  99.929,  130.69,  163.51,  200.58]
+\end{euleroutput}
+\begin{eulerprompt}
+>fmap(0:10) // sama dengan f(0:10), berlaku untuk semua fungsi
+\end{eulerprompt}
+\begin{euleroutput}
+  [1,  4.31978,  10.4826,  19.1516,  32.4692,  50.3833,  72.7562,
+  99.929,  130.69,  163.51,  200.58]
+\end{euleroutput}
+\begin{eulercomment}
+Misalkan kita akan mendefinisikan fungsi
+
+\end{eulercomment}
+\begin{eulerformula}
+\[
+f(x) = \begin{cases} x^3 & x>0 \\ x^2 & x\le 0. \end{cases}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+Fungsi tersebut tidak dapat didefinisikan sebagai fungsi numerik
+secara "inline" menggunakan format :=, melainkan didefinisikan sebagai
+program. Perhatikan, kata "map" digunakan agar fungsi dapat menerima
+vektor sebagai input, dan hasilnya berupa vektor. Jika tanpa kata
+"map" fungsinya hanya dapat menerima input satu nilai.
+\end{eulercomment}
+\begin{eulerprompt}
+>function map f(x) ...
+\end{eulerprompt}
+\begin{eulerudf}
+    if x>0 then return x^3
+    else return x^2
+    endif;
+  endfunction
+\end{eulerudf}
+\begin{eulerprompt}
+>f(1)
+\end{eulerprompt}
+\begin{euleroutput}
+  1
+\end{euleroutput}
+\begin{eulerprompt}
+>f(-2)
+\end{eulerprompt}
+\begin{euleroutput}
+  4
+\end{euleroutput}
+\begin{eulerprompt}
+>f(-5:5)
+\end{eulerprompt}
+\begin{euleroutput}
+  [25,  16,  9,  4,  1,  0,  1,  8,  27,  64,  125]
+\end{euleroutput}
+\begin{eulerprompt}
+>aspect(1.5); plot2d("f(x)",-5,5):
+\end{eulerprompt}
+\eulerimg{19}{images/raffi kalkulus-001.png}
+\begin{eulerprompt}
+>function f(x) &= 2*E^x // fungsi simbolik
+\end{eulerprompt}
+\begin{euleroutput}
+  
+                                      x
+                                   2 E
+  
+\end{euleroutput}
+\begin{eulerprompt}
+>function g(x) &= 3*x+1
+\end{eulerprompt}
+\begin{euleroutput}
+  
+                                 3 x + 1
+  
+\end{euleroutput}
+\begin{eulerprompt}
+>function h(x) &= f(g(x)) // komposisi fungsi
+\end{eulerprompt}
+\begin{euleroutput}
+  
+                                   3 x + 1
+                                2 E
+  
+\end{euleroutput}
+\eulerheading{Latihan}
+\begin{eulercomment}
+Bukalah buku Kalkulus. Cari dan pilih beberapa (paling sedikit 5
+fungsi berbeda tipe/bentuk/jenis) fungsi dari buku tersebut, kemudian
+definisikan di EMT pada baris-baris perintah berikut (jika perlu
+tambahkan lagi). Untuk setiap fungsi, hitung beberapa nilainya, baik
+untuk satu nilai maupun vektor. Gambar grafik tersebut.
+
+Juga, carilah fungsi beberapa (dua) variabel. Lakukan hal sama seperti
+di atas.
+
+Jawab:\\
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{A). FUNGSI 1 VARIABEL}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+1. Fungsi 1
+\end{eulercomment}
+\begin{eulerprompt}
+>function k(x) := x*(x^4-9)^3
+>k(3), k(5), k(7)
+\end{eulerprompt}
+\begin{euleroutput}
+  1119744
+  1168724480
+  95803542016
+\end{euleroutput}
+\begin{eulerprompt}
+>kmap(-3:3)
+\end{eulerprompt}
+\begin{euleroutput}
+  [-1.11974e+06,  -686,  512,  0,  -512,  686,  1.11974e+06]
+\end{euleroutput}
+\begin{eulerprompt}
+>plot2d("k(x)"):
+\end{eulerprompt}
+\eulerimg{19}{images/raffi kalkulus-002.png}
+\begin{eulercomment}
+2. Fungsi 2
+\end{eulercomment}
+\begin{eulerprompt}
+>function y(x) := (x)^3/(4-x^4) 
+>y(2), y(-2), y(1)
+\end{eulerprompt}
+\begin{euleroutput}
+  -0.666666666667
+  0.666666666667
+  0.333333333333
+\end{euleroutput}
+\begin{eulerprompt}
+>ymap(-5:-5)
+\end{eulerprompt}
+\begin{euleroutput}
+  0.201288244767
+\end{euleroutput}
+\begin{eulerprompt}
+>plot2d("y(x)"):
+\end{eulerprompt}
+\eulerimg{19}{images/raffi kalkulus-003.png}
+\begin{eulercomment}
+3. Fungsi 3
+\end{eulercomment}
+\begin{eulerprompt}
+>function k(x) := 8*x/(2*x+11)+2
+>k(2), k(-1), k(-3), k(4)
+\end{eulerprompt}
+\begin{euleroutput}
+  3.06666666667
+  1.11111111111
+  -2.8
+  3.68421052632
+\end{euleroutput}
+\begin{eulerprompt}
+>kmap(2:5)
+\end{eulerprompt}
+\begin{euleroutput}
+  [3.06667,  3.41176,  3.68421,  3.90476]
+\end{euleroutput}
+\begin{eulerprompt}
+>plot2d("k(x)"):
+\end{eulerprompt}
+\eulerimg{19}{images/raffi kalkulus-004.png}
+\begin{eulercomment}
+4. Fungsi 4
+\end{eulercomment}
+\begin{eulerprompt}
+>function j(x) := 8*x^9/(x^7-3)
+>j(5), j(4), j(3)
+\end{eulerprompt}
+\begin{euleroutput}
+  200.007680295
+  128.023441792
+  72.0989010989
+\end{euleroutput}
+\begin{eulerprompt}
+>jmap(5:8)
+\end{eulerprompt}
+\begin{euleroutput}
+  [200.008,  288.003,  392.001,  512.001]
+\end{euleroutput}
+\begin{eulerprompt}
+>plot2d("j(x)",-3,3,-600,600):
+\end{eulerprompt}
+\eulerimg{19}{images/raffi kalkulus-005.png}
+\begin{eulercomment}
+5. Fungsi 5
+\end{eulercomment}
+\begin{eulerprompt}
+>function l(x) := (-cos(x))*sin(8*x)
+>l(pi), l(0), l(pi/3)
+\end{eulerprompt}
+\begin{euleroutput}
+  0
+  0
+  -0.433012701892
+\end{euleroutput}
+\begin{eulerprompt}
+>lmap(0:3pi)
+\end{eulerprompt}
+\begin{euleroutput}
+  [0,  -0.534553,  -0.11981,  -0.896516,  0.360437,  -0.21136,  0.737655,
+  0.393198,  0.133864,  0.231266]
+\end{euleroutput}
+\begin{eulerprompt}
+>plot2d("j(x)"):
+\end{eulerprompt}
+\eulerimg{19}{images/raffi kalkulus-006.png}
+\begin{eulercomment}
+6. Fungsi 6
+\end{eulercomment}
+\begin{eulerprompt}
+>function z(x) := 11*x*sqrt(9x+12)
+>z(11), z(9), z(8)
+\end{eulerprompt}
+\begin{euleroutput}
+  1274.8141041
+  954.721425338
+  806.533322312
+\end{euleroutput}
+\begin{eulerprompt}
+>zmap(3:12)
+\end{eulerprompt}
+\begin{euleroutput}
+  [206.085,  304.841,  415.241,  536.187,  666.84,  806.533,  954.721,
+  1110.95,  1274.81,  1445.99]
+\end{euleroutput}
+\begin{eulerprompt}
+>plot2d("z(x)"):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-007.png}
+\begin{eulercomment}
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{B). FUNGSI 2 VARIABEL}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+1. Fungsi 1
+\end{eulercomment}
+\begin{eulerprompt}
+>function b(x,y) ...
+\end{eulerprompt}
+\begin{eulerudf}
+  return x^3+y^3-11
+  endfunction
+\end{eulerudf}
+\begin{eulerprompt}
+>b(9,3), b(7,2), b(3,1)
+\end{eulerprompt}
+\begin{euleroutput}
+  745
+  340
+  17
+\end{euleroutput}
+\begin{eulerprompt}
+>amap(-2:2,3:3)
+\end{eulerprompt}
+\begin{euleroutput}
+  [8,  15,  16,  17,  24]
+\end{euleroutput}
+\begin{eulerprompt}
+>aspect=1.5; plot3d("b(x,y)",a=-100,b=100,c=-80,d=80,angle=35°,height=30°,r=pi,n=100):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-009.png}
+\begin{eulercomment}
+2. Fungsi 2
+\end{eulercomment}
+\begin{eulerprompt}
+>function r(x,y) ...
+\end{eulerprompt}
+\begin{eulerudf}
+  return y^9/(x^9/4)
+  endfunction
+\end{eulerudf}
+\begin{eulerprompt}
+>r(5,3), r(4,3), r(1,2)
+\end{eulerprompt}
+\begin{euleroutput}
+  0.040310784
+  0.300338745117
+  2048
+\end{euleroutput}
+\begin{eulerprompt}
+>rmap(2:2,-2:2)
+\end{eulerprompt}
+\begin{euleroutput}
+  [-4,  -0.0078125,  0,  0.0078125,  4]
+\end{euleroutput}
+\begin{eulerprompt}
+>aspect=1.5; plot3d("r(x,y)",a=-100,b=100,c=-80,d=80,angle=35°,height=30°,r=pi,n=100):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-010.png}
+\eulerheading{Menghitung Limit}
+\begin{eulercomment}
+Perhitungan limit pada EMT dapat dilakukan dengan menggunakan fungsi
+Maxima, yakni "limit". Fungsi "limit" dapat digunakan untuk menghitung
+limit fungsi dalam bentuk ekspresi maupun fungsi yang sudah
+didefinisikan sebelumnya. Nilai limit dapat dihitung pada sebarang
+nilai atau pada tak hingga (-inf, minf, dan inf). Limit kiri dan limit
+kanan juga dapat dihitung, dengan cara memberi opsi "plus" atau
+"minus". Hasil limit dapat berupa nilai, "und' (tak definisi), "ind"
+(tak tentu namun terbatas), "infinity" (kompleks tak hingga).
+
+Perhatikan beberapa contoh berikut. Perhatikan cara menampilkan
+perhitungan secara lengkap, tidak hanya menampilkan hasilnya saja.
+\end{eulercomment}
+\begin{eulerprompt}
+>$showev('limit(1/(2*x-1),x,0))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{x\rightarrow 0}{\frac{1}{2\,x-1}}=-1
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('limit((x^2-3*x-10)/(x-5),x,5))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{x\rightarrow 5}{\frac{x^2-3\,x-10}{x-5}}=7
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('limit(sin(x)/x,x,0))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{x\rightarrow 0}{\frac{\sin x}{x}}=1
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>plot2d("sin(x)/x",-pi,pi):
+\end{eulerprompt}
+\eulerimg{19}{images/raffi kalkulus-014.png}
+\begin{eulerprompt}
+>$showev('limit(sin(x^3)/x,x,0))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{x\rightarrow 0}{\frac{\sin x^3}{x}}=0
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('limit(log(x), x, minf))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{x\rightarrow  -\infty }{\log x}={\it infinity}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('limit((-2)^x,x, inf))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{x\rightarrow \infty }{\left(-2\right)^{x}}={\it infinity}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('limit(t-sqrt(2-t),t,2,minus))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{t\uparrow 2}{t-\sqrt{2-t}}=2
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('limit(t-sqrt(2-t),t,5,plus)) // Perhatikan hasilnya
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{t\downarrow 5}{t-\sqrt{2-t}}=5-\sqrt{3}\,i
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>plot2d("x-sqrt(2-x)",-2,5):
+\end{eulerprompt}
+\eulerimg{19}{images/raffi kalkulus-020.png}
+\begin{eulerprompt}
+>$showev('limit((x^2-9)/(2*x^2-5*x-3),x,3))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{x\rightarrow 3}{\frac{x^2-9}{2\,x^2-5\,x-3}}=\frac{6}{7}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('limit((1-cos(x))/x,x,0))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{x\rightarrow 0}{\frac{1-\cos x}{x}}=0
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('limit((x^2+abs(x))/(x^2-abs(x)),x,0))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{x\rightarrow 0}{\frac{\left| x\right| +x^2}{x^2-\left| x  \right| }}=-1
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('limit((1+1/x)^x,x,inf))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{x\rightarrow \infty }{\left(\frac{1}{x}+1\right)^{x}}=e
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('limit((1+k/x)^x,x,inf))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{x\rightarrow \infty }{\left(\frac{k}{x}+1\right)^{x}}=e^{k}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('limit((1+x)^(1/x),x,0))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{x\rightarrow 0}{\left(x+1\right)^{\frac{1}{x}}}=e
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('limit((x/(x+k))^x,x,inf))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{x\rightarrow \infty }{\left(\frac{x}{x+k}\right)^{x}}=e^ {- k   }
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('limit(sin(1/x),x,0))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{x\rightarrow 0}{\sin \left(\frac{1}{x}\right)}={\it ind}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('limit(sin(1/x),x,inf))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{x\rightarrow \infty }{\sin \left(\frac{1}{x}\right)}=0
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>plot2d("sin(1/x)",-5,5):
+\end{eulerprompt}
+\eulerimg{19}{images/raffi kalkulus-030.png}
+\eulerheading{Latihan}
+\begin{eulercomment}
+Bukalah buku Kalkulus. Cari dan pilih beberapa (paling sedikit 5
+fungsi berbeda tipe/bentuk/jenis) fungsi dari buku tersebut, kemudian
+definisikan di EMT pada baris-baris perintah berikut (jika perlu
+tambahkan lagi). Untuk setiap fungsi, hitung nilai limit fungsi
+tersebut di beberapa nilai dan di tak hingga. Gambar grafik fungsi
+tersebut untuk mengkonfirmasi nilai-nilai limit tersebut.
+
+Jawab:\\
+1. Fungsi 1\\
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{$f(x)=\frac{9x+8}{x+4}$}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('limit((9*x+8)/(x+4),x,2))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{x\rightarrow 2}{\frac{9\,x+8}{x+4}}=\frac{13}{3}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>plot2d("(9*x+8)/(x+4)",-2,3.5,-1,5):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-033.png}
+\begin{eulercomment}
+2. Fungsi 2\\
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{$f(x)=\frac{cos 4x}{4sin x - cos x}$}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('limit(cos(4*x)/(4*sin(x) - cos (x)),x,0))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{x\rightarrow 0}{\frac{\cos \left(4\,x\right)}{4\,\sin x-\cos   x}}=-1
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>plot2d("cos(4*x)/(4*sin(x) - cos (x))",-1,1):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-036.png}
+\begin{eulercomment}
+3. Fungsi 3\\
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{$f(x)=\frac{3x^2-2x}{3x^2+x}$}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('limit(((3*x^2-2*x)/(3*x^2+x)),x,3))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{x\rightarrow 3}{\frac{3\,x^2-2\,x}{3\,x^2+x}}=\frac{7}{10}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>plot2d("(3*x^2-2*x)/(3*x^2+x)",-2,10,-10,5):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-039.png}
+\begin{eulercomment}
+4. Fungsi 4\\
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{$f(x)=9x^3+7$}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('limit((9*x^3+7),x,0))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{x\rightarrow 0}{9\,x^3+7}=7
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>plot2d("(9*x^3+7)"):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-042.png}
+\begin{eulercomment}
+5. Fungsi 5\\
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{$f(x)=x^{3x^{4x}}$}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('limit((x^(3*x^(4*x))),x,0,plus))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{x\downarrow 0}{x^{3\,x^{4\,x}}}=0
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>plot2d("(x^(3*x^(4*x)))",-3,3,-1,7):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-045.png}
+\begin{eulercomment}
+6. Fungsi 6\\
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{$f(x)=\frac{4xtanx}{2-cos8x}$}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('limit((4*x*tan(x))/(2-cos(8*x)),x,0))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+4\,\left(\lim_{x\rightarrow 0}{\frac{x\,\tan x}{2-\cos \left(8\,x  \right)}}\right)=0
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>plot2d("(4*x*tan(x))/(2-cos(4*x))",-pi/2,2pi,0,2pi):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-048.png}
+\eulerheading{Turunan Fungsi}
+\begin{eulercomment}
+Definisi turunan:
+
+\end{eulercomment}
+\begin{eulerformula}
+\[
+f'(x) = \lim_{h\to 0} \frac{f(x+h)-f(x)}{h}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+Berikut adalah contoh-contoh menentukan turunan fungsi dengan
+menggunakan definisi turunan (limit).
+\end{eulercomment}
+\begin{eulerprompt}
+>$showev('limit(((x+h)^n-x^n)/h,h,0)) // turunan x^n
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{h\rightarrow 0}{\frac{\left(x+h\right)^{n}-x^{n}}{h}}=n\,x^{n  -1}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+Mengapa hasilnya seperti itu? Tuliskan atau tunjukkan bahwa hasil
+limit tersebut benar, sehingga benar turunan fungsinya benar.  Tulis
+penjelasan Anda di komentar ini.
+
+Sebagai petunjuk, ekspansikan (x+h)\textasciicircum{}n dengan menggunakan teorema
+binomial.\\
+Jawab:\\
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{Akan ditunjukkan bahwa \: $f'(x)=\lim_{h\to 0} \frac{(x+h)^n-x^n}{h}=nx^{n-1}$}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{Pertama, ekspansikan $(x+h)^n$, yakni: }
+\]
+\end{eulerformula}
+\begin{eulercomment}
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{$(x+h)^n=\sum_{k=0}^{n} \binom{n}{k}x^{n-k}h^k$}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{$\Leftrightarrow \: (x+h)^n=\binom{n}{0}x^{n}+\binom{n}{1}x^{n-1}h+\binom{n}{2}x^{n-2}h^2+ ...+\binom{n}{n}h^n$}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{$\Leftrightarrow \: (x+h)^n=x^{n}+nx^{n-1}h+\binom{n}{2}x^{n-2}h^2+\binom{n}{3}x^{n-3}h^3+ ...+h^n$}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{Sehingga, $f'(x)$ menjadi:\: $f'(x)=\lim_{h\to 0} \frac{(x+h)^n-x^n}{h}$}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{$\Leftrightarrow f'(x)=\lim_{h\to 0} \frac{x^{n}+nx^{n-1}h+\binom{n}{2}x^{n-2}h^2+\binom{n}{3}x^{n-3}h^3+ ...+h^n-x^n}{h}$}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{$\Leftrightarrow f'(x)=\lim_{h\to 0} nx^{n-1}+\binom{n}{2}x^{n-2}h+\binom{n}{3}x^{n-3}h^2+ ...+h^{n-1}$}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{$\Leftrightarrow f'(x)=nx^{n-1}$. Terbukti.}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('limit((sin(x+h)-sin(x))/h,h,0)) // turunan sin(x)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{h\rightarrow 0}{\frac{\sin \left(x+h\right)-\sin x}{h}}=\cos   x
+\]
+\end{eulerformula}
+\begin{eulercomment}
+Mengapa hasilnya seperti itu? Tuliskan atau tunjukkan bahwa hasil
+limit tersebut\\
+benar, sehingga benar turunan fungsinya benar.  Tulis penjelasan Anda
+di komentar ini.
+
+Sebagai petunjuk, ekspansikan sin(x+h) dengan menggunakan rumus jumlah
+dua sudut.\\
+Jawab:\\
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{Akan ditunjukkan bahwa\: $\lim_{h\to 0} \frac{\sin(x+h)-\sin x}{h}=\cos x$}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{Diketahui bahwa:}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{$1).\: \sin(x+h)=\sin x\cos h+\cos x\sin h$}
+\]
+\end{eulerformula}
+\begin{eulerformula}
+\[
+\text{$2).\: \lim_{h\to 0} \frac{1-\cos h}{h}=0$}
+\]
+\end{eulerformula}
+\begin{eulerformula}
+\[
+\text{$3).\: \lim_{h\to 0} \frac{\sin h}{h}=1$}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{$\lim_{h\to 0} \frac{\sin(x+h)-\sin x}{h}$}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{$=\lim_{h\to 0} \frac{\sin x\cos h+\cos x\sin h-\sin x}{h}$}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{$=\lim_{h\to 0} \left[-\sin x\cdot\frac{1-\cos h}{h}+\cos x\cdot\frac{\sin h}{h}\right]$}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{$=(-\sin x)\left[\lim_{h\to 0} \frac{1-\cos h}{h}+(\cos x)\lim_{h\to 0} \frac{\sin h}{h}\right]$}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{$=(-\sin x)(0)+(\cos x)(1)=\cos x$. Terbukti.}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('limit((log(x+h)-log(x))/h,h,0)) // turunan log(x)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{h\rightarrow 0}{\frac{\log \left(x+h\right)-\log x}{h}}=  \frac{1}{x}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+Mengapa hasilnya seperti itu? Tuliskan atau tunjukkan bahwa hasil
+limit tersebut\\
+benar, sehingga benar turunan fungsinya benar.  Tulis penjelasan Anda
+di komentar ini.
+
+Sebagai petunjuk, gunakan sifat-sifat logaritma dan hasil limit pada
+bagian sebelumnya di atas.\\
+Jawab:\\
+Bukti:\\
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{Ambil $f(x)=^a\log x$.}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{$\lim_{h\to 0} \frac{^a\log (x+h)-^a\log x}{h}$}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{$=\lim _{h\to 0} \frac{^a\log \frac{(x+h)}{x}}{h}$}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{$=\lim_{h\to 0} \frac{^a\log (1+\frac{h}{x})}{h}$}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{$=\lim_{h\to 0} \frac{^a\log (1+\frac{h}{x})}{\frac{h}{x}x}$}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{$=\lim_{h\to 0} \frac{\frac{x}{h}\cdot ^a\log (1+\frac{h}{x})}{x}$}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{$=\lim_{h\to 0} \frac{^a\log (1+\frac{h}{x})^\frac{x}{h}}{x}$}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{$=\frac{\lim_{h\to 0}\: ^a\log (1+\frac{h}{x})^\frac{x}{h}}{\lim _{h\to 0}\: x}$}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{$=\frac{1}{x\cdot ^e\log a}$}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{$=\frac{1}{x\cdot \ln a}$}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{Menggunakan hasil di atas, maka:}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{$\frac{d\: \ln x}{dx}=\frac{d\: ^e\log x}{dx}=\frac{1}{x\cdot \ln e}=\frac{1}{x}.$ Terbukti.}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('limit((1/(x+h)-1/x)/h,h,0)) // turunan 1/x
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{h\rightarrow 0}{\frac{\frac{1}{x+h}-\frac{1}{x}}{h}}=-\frac{1  }{x^2}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('limit((E^(x+h)-E^x)/h,h,0))... // turunan f(x)=e^x
+\end{eulerprompt}
+\begin{eulercomment}
+Maxima bermasalah dengan limit:
+
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\lim_{h\to 0}\frac{e^{x+h}-e^x}{h}.
+\]
+\end{eulerformula}
+\begin{eulercomment}
+Oleh karena itu diperlukan trik khusus agar hasilnya benar.
+\end{eulercomment}
+\begin{eulerprompt}
+>$showev('limit((E^h-1)/h,h,0))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{h\rightarrow 0}{\frac{e^{h}-1}{h}}=1
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$factor(E^(x+h)-E^x)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\left(e^{h}-1\right)\,e^{x}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('limit(factor((E^(x+h)-E^x)/h),h,0)) // turunan f(x)=e^x
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\left(\lim_{h\rightarrow 0}{\frac{e^{h}-1}{h}}\right)\,e^{x}=e^{x}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>function f(x) &= x^x
+\end{eulerprompt}
+\begin{euleroutput}
+  
+                                     x
+                                    x
+  
+\end{euleroutput}
+\begin{eulerprompt}
+>$showev('limit((f(x+h)-f(x))/h,h,0)) // turunan f(x)=x^x
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{h\rightarrow 0}{\frac{\left(x+h\right)^{x+h}-x^{x}}{h}}=  {\it infinity}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+Di sini Maxima juga bermasalah terkait limit:
+
+\end{eulercomment}
+\begin{eulerformula}
+\[
+lim_{h\to 0} \frac{(x+h)^{x+h}-x^x}{h}.
+\]
+\end{eulerformula}
+\begin{eulercomment}
+Dalam hal ini diperlukan asumsi nilai x.
+\end{eulercomment}
+\begin{eulerprompt}
+>&assume(x>0); $showev('limit((f(x+h)-f(x))/h,h,0)) // turunan f(x)=x^x
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{h\rightarrow 0}{\frac{\left(x+h\right)^{x+h}-x^{x}}{h}}=x^{x}  \,\left(\log x+1\right)
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>&forget(x>0) // jangan lupa, lupakan asumsi untuk kembali ke semula
+\end{eulerprompt}
+\begin{euleroutput}
+  
+                                 [x > 0]
+  
+\end{euleroutput}
+\begin{eulerprompt}
+>&forget(x<0)
+\end{eulerprompt}
+\begin{euleroutput}
+  
+                                 [x < 0]
+  
+\end{euleroutput}
+\begin{eulerprompt}
+>&facts()
+\end{eulerprompt}
+\begin{euleroutput}
+  
+                                    []
+  
+\end{euleroutput}
+\begin{eulerprompt}
+>$showev('limit((asin(x+h)-asin(x))/h,h,0)) // turunan arcsin(x)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{h\rightarrow 0}{\frac{\arcsin \left(x+h\right)-\arcsin x}{h}}=  \frac{1}{\sqrt{1-x^2}}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('limit((tan(x+h)-tan(x))/h,h,0)) // turunan tan(x)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{h\rightarrow 0}{\frac{\tan \left(x+h\right)-\tan x}{h}}=  \frac{1}{\cos ^2x}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>function f(x) &= sinh(x) // definisikan f(x)=sinh(x)
+\end{eulerprompt}
+\begin{euleroutput}
+  
+                                 sinh(x)
+  
+\end{euleroutput}
+\begin{eulerprompt}
+>function df(x) &= limit((f(x+h)-f(x))/h,h,0); $df(x) // df(x) = f'(x)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\frac{e^ {- x }\,\left(e^{2\,x}+1\right)}{2}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+Hasilnya adalah cosh(x), karena
+
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\frac{e^x+e^{-x}}{2}=\cosh(x).
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>plot2d(["f(x)","df(x)"],-pi,pi,color=[blue,red]):
+\end{eulerprompt}
+\eulerimg{19}{images/raffi kalkulus-095.png}
+\eulerheading{Latihan}
+\begin{eulercomment}
+Bukalah buku Kalkulus. Cari dan pilih beberapa (paling sedikit 5
+fungsi berbeda tipe/bentuk/jenis) fungsi dari buku tersebut, kemudian
+definisikan di EMT pada baris-baris perintah berikut (jika perlu
+tambahkan lagi). Untuk setiap fungsi, tentukan turunannya dengan
+menggunakan definisi turunan (limit), seperti contoh-contoh tersebut.
+Gambar grafik fungsi asli dan fungsi turunannya pada sumbu koordinat
+yang sama.
+
+Jawab:\\
+1. Fungsi 1
+\end{eulercomment}
+\begin{eulerprompt}
+>function f(x) := 3*x^4
+>$showev('limit(((3*(x+h)^4-3*x^4)/h),h,0)) // turunan 3*x^4
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{h\rightarrow 0}{\frac{3\,\left(x+h\right)^4-3\,x^4}{h}}=12\,x  ^3
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>function df(x) &= limit(((3*(x+h)^4-3*x^4)/h),h,0);  $df(x)// df(x) = f'(x)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+12\,x^3
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>plot2d(["f(x)","df(x)"],-pi,pi,color=[blue,red]), label("f(x)",2,0.6), label("df(x)",2,0.17):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-098.png}
+\begin{eulercomment}
+2. Fungsi 2
+\end{eulercomment}
+\begin{eulerprompt}
+>function f(x) := 8*sin(x)*8*cos(x)
+>$showev('limit((8*(sin(x+h)*8*cos(x+h))-64*sin(x)*cos(x))/h,h,0)) // turunan 8*sin(x)*8*cos(x)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{h\rightarrow 0}{\frac{64\,\cos \left(x+h\right)\,\sin \left(x  +h\right)-64\,\cos x\,\sin x}{h}}=-64\,\left(\sin ^2x-\cos ^2x  \right)
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>function df(x) &= limit((64*(sin(x+h)*cos(x+h))-64*sin(x)*cos(x))/h,h,0);  $df(x)// df(x) = f'(x)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+-64\,\left(\sin ^2x-\cos ^2x\right)
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>plot2d(["f(x)","df(x)"],-pi,pi,color=[blue,red]), label("f(x)",1,0), label("df(x)",2.3,1.2):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-101.png}
+\begin{eulercomment}
+3. Fungsi 3
+\end{eulercomment}
+\begin{eulerprompt}
+>function f(x) := sqrt(x)
+>$showev('limit((sqrt(x+h)-sqrt(x))/h,h,0)) // turunan akar 4
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{h\rightarrow 0}{\frac{\sqrt{x+h}-\sqrt{x}}{h}}=\frac{1}{2\,  \sqrt{x}}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>function df(x) &= limit((sqrt(x+h)-sqrt(x))/h,h,0);  $df(x)// df(x) = f'(x)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\frac{1}{2\,\sqrt{x}}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>plot2d(["f(x)","df(x)"],-pi,pi,color=[blue,red]), label("f(x)",-2,11), label("df(x)",-2,-10):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-104.png}
+\begin{eulercomment}
+4. Fungsi 4
+\end{eulercomment}
+\begin{eulerprompt}
+>function f(x) := cos(2/x)
+>$showev('limit((cos(2/(x+h))-cos(2/x))/h,h,0)) // turunan cos(2/x)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{h\rightarrow 0}{\frac{\cos \left(\frac{2}{x+h}\right)-\cos   \left(\frac{2}{x}\right)}{h}}=\frac{4\,\cos \left(\frac{1}{x}\right)  \,\sin \left(\frac{1}{x}\right)}{x^2}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>function df(x) &= limit((cos(2/(x+h))-cos(2/x))/h,h,0);  $df(x)// df(x) = f'(x)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\frac{4\,\cos \left(\frac{1}{x}\right)\,\sin \left(\frac{1}{x}  \right)}{x^2}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>plot2d(["f(x)","df(x)"],-pi,pi,color=[blue,red]), label("f(x)",2,0.4), label("df(x)",1,-0.5):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-107.png}
+\begin{eulercomment}
+5. Fungsi 5
+\end{eulercomment}
+\begin{eulerprompt}
+>function f(x) := (log(x))^4
+>$showev('limit(((log(x+h))^4-(log(x))^4)/h,h,0)) // turunan (log(x))^4
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{h\rightarrow 0}{\frac{\log ^4\left(x+h\right)-\log ^4x}{h}}=  \frac{4\,\log ^3x}{x}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>function df(x) &= limit(((log(x+h))^4-(log(x))^4)/h,h,0);  $df(x)// df(x) = f'(x)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\frac{4\,\log ^3x}{x}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>plot2d(["f(x)","df(x)"],-50,100,-10,50,color=[blue,red]), label("f(x)",25,35), label("df(x)",50,1):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-110.png}
+\begin{eulercomment}
+6. Fungsi 6
+\end{eulercomment}
+\begin{eulerprompt}
+>function f(x) := 8*sqrt(tan(x))
+>$showev('limit(8*(sqrt(tan(x+h))-8*sqrt(tan(x)))/h,h,0)) // turunan exp(x)*cos(x)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+8\,\left(\lim_{h\rightarrow 0}{\frac{\sqrt{\tan \left(x+h\right)}-8  \,\sqrt{\tan x}}{h}}\right)=8\,{\it infinity}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>function df(x) &= limit(8*(sqrt(tan(x+h))-8*sqrt(tan(x)))/h,h,0);  $df(x)// df(x) = f'(x)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+{\it infinity}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>plot2d(["f(x)","df(x)"],-10,10,-10,10,color=[blue,red]), label("f(x)",4.5,0), label("df(x)",5.5,5):
+\end{eulerprompt}
+\eulerimg{19}{images/raffi kalkulus-113.png}
+\eulerheading{Integral}
+\begin{eulercomment}
+EMT dapat digunakan untuk menghitung integral, baik integral tak tentu
+maupun integral tentu. Untuk integral tak tentu (simbolik) sudah tentu
+EMT menggunakan Maxima, sedangkan untuk perhitungan integral tentu EMT
+sudah menyediakan beberapa fungsi yang mengimplementasikan algoritma
+kuadratur (perhitungan integral tentu menggunakan metode numerik).
+
+Pada notebook ini akan ditunjukkan perhitungan integral tentu dengan
+menggunakan Teorema Dasar Kalkulus:
+
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\int_a^b f(x)\ dx = F(b)-F(a), \quad \text{ dengan  } F'(x) = f(x).
+\]
+\end{eulerformula}
+\begin{eulercomment}
+Fungsi untuk menentukan integral adalah integrate. Fungsi ini dapat
+digunakan untuk menentukan, baik integral tentu maupun tak tentu (jika
+fungsinya memiliki antiderivatif). Untuk perhitungan integral tentu
+fungsi integrate menggunakan metode numerik (kecuali fungsinya tidak
+integrabel, kita tidak akan menggunakan metode ini).
+\end{eulercomment}
+\begin{eulerprompt}
+>$showev('integrate(x^n,x))
+\end{eulerprompt}
+\begin{euleroutput}
+  Answering "Is n equal to -1?" with "no"
+\end{euleroutput}
+\begin{eulerformula}
+\[
+\int {x^{n}}{\;dx}=\frac{x^{n+1}}{n+1}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('integrate(1/(1+x),x))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\int {\frac{1}{x+1}}{\;dx}=\log \left(x+1\right)
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('integrate(1/(1+x^2),x))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\int {\frac{1}{x^2+1}}{\;dx}=\arctan x
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('integrate(1/sqrt(1-x^2),x))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\int {\frac{1}{\sqrt{1-x^2}}}{\;dx}=\arcsin x
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('integrate(sin(x),x,0,pi))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\int_{0}^{\pi}{\sin x\;dx}=2
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('integrate(sin(x),x,a,b))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\int_{a}^{b}{\sin x\;dx}=\cos a-\cos b
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('integrate(x^n,x,a,b))
+\end{eulerprompt}
+\begin{euleroutput}
+  Answering "Is n positive, negative or zero?" with "positive"
+\end{euleroutput}
+\begin{eulerformula}
+\[
+\int_{a}^{b}{x^{n}\;dx}=\frac{b^{n+1}}{n+1}-\frac{a^{n+1}}{n+1}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('integrate(x^2*sqrt(2*x+1),x))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\int {x^2\,\sqrt{2\,x+1}}{\;dx}=\frac{\left(2\,x+1\right)^{\frac{7  }{2}}}{28}-\frac{\left(2\,x+1\right)^{\frac{5}{2}}}{10}+\frac{\left(  2\,x+1\right)^{\frac{3}{2}}}{12}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('integrate(x^2*sqrt(2*x+1),x,0,2))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\int_{0}^{2}{x^2\,\sqrt{2\,x+1}\;dx}=\frac{2\,5^{\frac{5}{2}}}{21}-  \frac{2}{105}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$ratsimp(%)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\int_{0}^{2}{x^2\,\sqrt{2\,x+1}\;dx}=\frac{2\,5^{\frac{7}{2}}-2}{  105}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('integrate((sin(sqrt(x)+a)*E^sqrt(x))/sqrt(x),x,0,pi^2))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\int_{0}^{\pi^2}{\frac{\sin \left(\sqrt{x}+a\right)\,e^{\sqrt{x}}}{  \sqrt{x}}\;dx}=\left(-e^{\pi}-1\right)\,\sin a+\left(e^{\pi}+1  \right)\,\cos a
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$factor(%)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\int_{0}^{\pi^2}{\frac{\sin \left(\sqrt{x}+a\right)\,e^{\sqrt{x}}}{  \sqrt{x}}\;dx}=\left(-e^{\pi}-1\right)\,\left(\sin a-\cos a\right)
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>function map f(x) &= E^(-x^2); $f(x)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+e^ {- x^2 }
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('integrate(f(x),x))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\int {e^ {- x^2 }}{\;dx}=\frac{\sqrt{\pi}\,\mathrm{erf}\left(x  \right)}{2}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+Fungsi f tidak memiliki antiturunan, integralnya masih memuat integral
+lain.
+
+\end{eulercomment}
+\begin{eulerformula}
+\[
+erf(x) = \int \frac{e^{-x^2}}{\sqrt{\pi}} \ dx.
+\]
+\end{eulerformula}
+\begin{eulercomment}
+Kita tidak dapat menggunakan teorema Dasar kalkulus untuk menghitung
+integral tentu fungsi tersebut jika semua batasnya berhingga. Dalam
+hal ini dapat digunakan metode numerik (rumus kuadratur).
+
+Misalkan kita akan menghitung:
+
+maxima: 'integrate(f(x),x,0,pi)
+\end{eulercomment}
+\begin{eulerprompt}
+>x=0:0.1:pi-0.1; plot2d(x,f(x+0.1),>bar); plot2d("f(x)",0,pi,>add):
+\end{eulerprompt}
+\eulerimg{19}{images/raffi kalkulus-129.png}
+\begin{eulercomment}
+Integral tentu
+
+maxima: 'integrate(f(x),x,0,pi)
+
+dapat dihampiri dengan jumlah luas persegi-persegi panjang di bawah
+kurva y=f(x) tersebut. Langkah-langkahnya adalah sebagai berikut.
+\end{eulercomment}
+\begin{eulerprompt}
+>t &= makelist(a,a,0,pi-0.1,0.1); // t sebagai list untuk menyimpan nilai-nilai x
+>fx &= makelist(f(t[i]+0.1),i,1,length(t)); // simpan nilai-nilai f(x)
+>// jangan menggunakan x sebagai list, kecuali Anda pakar Maxima!
+\end{eulerprompt}
+\begin{eulercomment}
+Hasilnya adalah:
+
+maxima: 'integrate(f(x),x,0,pi) = 0.1*sum(fx[i],i,1,length(fx))
+
+Jumlah tersebut diperoleh dari hasil kali lebar sub-subinterval (=0.1)
+dan jumlah nilai-nilai f(x) untuk x = 0.1, 0.2, 0.3, ..., 3.2.
+\end{eulercomment}
+\begin{eulerprompt}
+>0.1*sum(f(x+0.1)) // cek langsung dengan perhitungan numerik EMT
+\end{eulerprompt}
+\begin{euleroutput}
+  0.836219610253
+\end{euleroutput}
+\begin{eulercomment}
+Untuk mendapatkan nilai integral tentu yang mendekati nilai sebenarnya, lebar
+sub-intervalnya dapat diperkecil lagi, sehingga daerah di bawah kurva tertutup
+semuanya, misalnya dapat digunakan lebar subinterval 0.001. (Silakan dicoba!)
+
+Meskipun Maxima tidak dapat menghitung integral tentu fungsi tersebut untuk
+batas-batas yang berhingga, namun integral tersebut dapat dihitung secara eksak jika
+batas-batasnya tak hingga. Ini adalah salah satu keajaiban di dalam matematika, yang
+terbatas tidak dapat dihitung secara eksak, namun yang tak hingga malah dapat
+dihitung secara eksak.
+\end{eulercomment}
+\begin{eulerprompt}
+>$showev('integrate(f(x),x,0,inf))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\int_{0}^{\infty }{e^ {- x^2 }\;dx}=\frac{\sqrt{\pi}}{2}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+Berikut adalah contoh lain fungsi yang tidak memiliki antiderivatif, sehingga
+integral tentunya hanya dapat dihitung dengan metode numerik.
+\end{eulercomment}
+\begin{eulerprompt}
+>function f(x) &= x^x; $f(x)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+x^{x}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('integrate(f(x),x,0,1))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\int_{0}^{1}{x^{x}\;dx}=\int_{0}^{1}{x^{x}\;dx}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>x=0:0.1:1-0.01; plot2d(x,f(x+0.01),>bar); plot2d("f(x)",0,1,>add):
+\end{eulerprompt}
+\eulerimg{19}{images/raffi kalkulus-133.png}
+\begin{eulercomment}
+Maxima gagal menghitung integral tentu tersebut secara langsung menggunakan perintah
+integrate. Berikut kita lakukan seperti contoh sebelumnya untuk mendapat hasil atau
+pendekatan nilai integral tentu tersebut.
+\end{eulercomment}
+\begin{eulerprompt}
+>t &= makelist(a,a,0,1-0.01,0.01);
+>fx &= makelist(f(t[i]+0.01),i,1,length(t));
+\end{eulerprompt}
+\eulerheading{Latihan}
+\begin{eulercomment}
+- Bukalah buku Kalkulus.\\
+- Cari dan pilih beberapa (paling sedikit 5 fungsi berbeda
+tipe/bentuk/jenis) fungsi dari buku tersebut, kemudian definisikan di
+EMT pada baris-baris perintah berikut (jika perlu tambahkan lagi).\\
+- Untuk setiap fungsi, tentukan anti turunannya (jika ada), hitunglah
+integral tentu dengan batas-batas yang menarik (Anda tentukan
+sendiri), seperti contoh-contoh tersebut.\\
+- Lakukan hal yang sama untuk fungsi-fungsi yang tidak dapat
+diintegralkan (cari sedikitnya 3 fungsi).\\
+- Gambar grafik fungsi dan daerah integrasinya pada sumbu koordinat
+yang sama.\\
+- Gunakan integral tentu untuk mencari luas daerah yang dibatasi oleh
+dua kurva yang berpotongan di dua titik. (Cari dan gambar kedua kurva
+dan arsir (warnai) daerah yang dibatasi oleh keduanya.)\\
+- Gunakan integral tentu untuk menghitung volume benda putar kurva y=
+f(x) yang diputar mengelilingi sumbu x dari x=a sampai x=b, yakni
+
+\end{eulercomment}
+\begin{eulerformula}
+\[
+V = \int_a^b \pi (f(x))^2\ dx.
+\]
+\end{eulerformula}
+\begin{eulercomment}
+(Pilih fungsinya dan gambar kurva dan benda putar yang dihasilkan.
+Anda dapat mencari contoh-contoh bagaimana cara menggambar benda hasil
+perputaran suatu kurva.)\\
+- Gunakan integral tentu untuk menghitung panjang kurva y=f(x) dari
+x=a sampai x=b dengan menggunakan rumus:
+
+\end{eulercomment}
+\begin{eulerformula}
+\[
+S = \int_a^b \sqrt{1+(f'(x))^2} \ dx.
+\]
+\end{eulerformula}
+\begin{eulercomment}
+(Pilih fungsi dan gambar kurvanya.)
+
+Jawab:\\
+1. Fungsi 1
+\end{eulercomment}
+\begin{eulerprompt}
+>function f(x) &= 6*x^3; $f(x)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+6\,x^3
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('integrate(f(x),x))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+6\,\int {x^3}{\;dx}=\frac{3\,x^4}{2}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('integrate(f(x),x,2,3))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+6\,\int_{2}^{3}{x^3\;dx}=\frac{195}{2}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>x=0.01:0.03:4; plot2d(x,f(x+0.01),>bar); plot2d("f(x)",2,3,>add):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-139.png}
+\begin{eulercomment}
+2. Fungsi 2
+\end{eulercomment}
+\begin{eulerprompt}
+>function f(x) &= cos(x+8); $f(x)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\cos \left(x+8\right)
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('integrate(f(x),x))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\int {\cos \left(x+8\right)}{\;dx}=\sin \left(x+8\right)
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('integrate(f(x),x,pi,2*pi))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\int_{\pi}^{2\,\pi}{\cos \left(x+8\right)\;dx}=2\,\sin 8
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>x=0:0.05:pi-0.1; plot2d(x,f(x+0.03),>bar); plot2d("f(x)",pi,2*pi,>add):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-143.png}
+\begin{eulercomment}
+3. Fungsi 3
+\end{eulercomment}
+\begin{eulerprompt}
+>function f(x) &= 4*(sin(x))*5*(cos((x)))^2; $f(x)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+20\,\cos ^2x\,\sin x
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('integrate(f(x),x))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+20\,\int {\cos ^2x\,\sin x}{\;dx}=-\frac{20\,\cos ^3x}{3}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('integrate(f(x),x,0,pi))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+20\,\int_{0}^{\pi}{\cos ^2x\,\sin x\;dx}=\frac{40}{3}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>x=-pi:0.04:pi; plot2d(x,f(x+0.01),>bar); plot2d("f(x)",0,pi,>add):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-147.png}
+\begin{eulercomment}
+4. Fungsi 4
+\end{eulercomment}
+\begin{eulerprompt}
+>function f(x) &= (x^9*(2-x^5)^(1/6)); $f(x)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+x^9\,\left(2-x^5\right)^{\frac{1}{6}}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('integrate(f(x),x))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\int {x^9\,\left(2-x^5\right)^{\frac{1}{6}}}{\;dx}=\frac{6\,\left(2  -x^5\right)^{\frac{13}{6}}}{65}-\frac{12\,\left(2-x^5\right)^{\frac{  7}{6}}}{35}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('integrate(f(x),x,0,1))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\int_{0}^{1}{x^9\,\left(2-x^5\right)^{\frac{1}{6}}\;dx}=\frac{9\,2  ^{\frac{25}{6}}}{455}-\frac{114}{455}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>x=-1:0.04:1; plot2d(x,f(x+0.01),>bar); plot2d("f(x)",0,1,>add):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-151.png}
+\begin{eulercomment}
+5. Fungsi 5
+\end{eulercomment}
+\begin{eulerprompt}
+>function f(x) &= 9*sqrt(24-x^2); $f(x)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+9\,\sqrt{24-x^2}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('integrate(f(x),x))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+9\,\int {\sqrt{24-x^2}}{\;dx}=9\,\left(12\,\arcsin \left(\frac{x}{2  \,\sqrt{6}}\right)+\frac{x\,\sqrt{24-x^2}}{2}\right)
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('integrate(f(x),x,1,2))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+9\,\int_{1}^{2}{\sqrt{24-x^2}\;dx}=9\,\left(12\,\arcsin \left(  \frac{1}{\sqrt{6}}\right)-\frac{24\,\arcsin \left(\frac{1}{2\,\sqrt{  6}}\right)+\sqrt{23}}{2}+2\,\sqrt{5}\right)
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>x=-2:0.04:1; plot2d(x,f(x+0.01),>bar); plot2d("f(x)",1,2,>add):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-155.png}
+\begin{eulercomment}
+6. Fungsi 6
+\end{eulercomment}
+\begin{eulerprompt}
+>t &= makelist(a,a,0,1-2.04,0.08);
+>fx &= makelist(f(t[i]+0.01),i,1,length(t));
+>function f(x) &= 9*x^2+11; $f(x)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+9\,x^2+11
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>x=0:0.1:pi-0.01; plot2d(x,f(x+0.01),>bar); plot2d("f(x)",0,pi,>add):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-157.png}
+\begin{eulerprompt}
+>0.0222*sum(f(x+0.01))
+\end{eulerprompt}
+\begin{euleroutput}
+  28.82440896
+\end{euleroutput}
+\begin{eulercomment}
+7. Fungsi 7
+\end{eulercomment}
+\begin{eulerprompt}
+>t &= makelist(a,a,0,1-0.01,0.01);
+>fx &= makelist(f(t[i]+0.01),i,1,length(t));
+>function f(x) &= 8*cos(x)/x; $f(x)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\frac{8\,\cos x}{x}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>x=-pi:0.07:pi-0.01; plot2d(x,f(x+0.01),>bar); plot2d("f(x)",0,pi,>add):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-159.png}
+\begin{eulerprompt}
+>0.01*sum(f(x+0.01))
+\end{eulerprompt}
+\begin{euleroutput}
+  3.32131193005
+\end{euleroutput}
+\begin{eulercomment}
+8. Fungsi 8
+\end{eulercomment}
+\begin{eulerprompt}
+>t &= makelist(a,a,0,1-0.01,0.01);
+>fx &= makelist(f(t[i]+0.01),i,1,length(t));
+>function f(x) &= sqrt(x^4-1); $f(x)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\sqrt{x^4-1}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>x=3:0.04:pi-0.01; plot2d(x,f(x+0.01),>bar); plot2d("f(x)",0,2,>add):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-161.png}
+\begin{eulerprompt}
+>0.01*sum(f(x+0.01))
+\end{eulerprompt}
+\begin{euleroutput}
+  0.374946576673
+\end{euleroutput}
+\eulersubheading{Luas daerah dibatasi 2 kurva}
+\begin{eulercomment}
+1). Fungsi 1
+\end{eulercomment}
+\begin{eulerprompt}
+>function f(x) &= x^3; $f(x)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+x^3
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>function g(x) &= x; $g(x)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+x
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>plot2d(["x^4","x^3"],-2,2,-1,2):
+\end{eulerprompt}
+\eulerimg{19}{images/raffi kalkulus-164.png}
+\begin{eulerprompt}
+>function h(x) &= f(x)-g(x); $h(x)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+x^3-x
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('integrate(h(x),x))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\int {x^3-x}{\;dx}=\frac{x^4}{4}-\frac{x^2}{2}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$&solve(f(x)=g(x))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\left[ x=-1 , x=1 , x=0 \right] 
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('integrate(h(x),x,0,1)) // menghitung luas daerah yang dibatasi 2 kurva
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\int_{0}^{1}{x^3-x\;dx}=-\frac{1}{4}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{Arsiran daerah yang dibatasi kurva $f(x)$ dan $g(x)$ sebagai berikut:}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>x=-1:0.01:1; plot2d(x,f(x),>bar,>filled,style="-",fillcolor=orange,>grid); plot2d(x,g(x),>bar,>add,>filled,style="-",fillcolor=white); label("f(x)",0,2.1); label("g(x)",0.5,0.3):
+\end{eulerprompt}
+\eulerimg{19}{images/raffi kalkulus-169.png}
+\begin{eulercomment}
+2). Fungsi 2
+\end{eulercomment}
+\begin{eulerprompt}
+>function f(x) &= x^3+1; $f(x)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+x^3+1
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>function g(x) &= x^2; $g(x)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+x^2
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>plot2d(["-x^2+2","x^2"],-2,2,-1,2):
+\end{eulerprompt}
+\eulerimg{19}{images/raffi kalkulus-172.png}
+\begin{eulerprompt}
+>function h(x) &= f(x)-g(x); $h(x)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+x^3-x^2+1
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$&solve(f(x)=g(x))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\left[ x=\frac{\frac{\sqrt{3}\,i}{2}-\frac{1}{2}}{9\,\left(\frac{  \sqrt{23}}{2\,3^{\frac{3}{2}}}-\frac{25}{54}\right)^{\frac{1}{3}}}+  \left(\frac{\sqrt{23}}{2\,3^{\frac{3}{2}}}-\frac{25}{54}\right)^{  \frac{1}{3}}\,\left(-\frac{\sqrt{3}\,i}{2}-\frac{1}{2}\right)+\frac{  1}{3} , x=\left(\frac{\sqrt{23}}{2\,3^{\frac{3}{2}}}-\frac{25}{54}  \right)^{\frac{1}{3}}\,\left(\frac{\sqrt{3}\,i}{2}-\frac{1}{2}  \right)+\frac{-\frac{\sqrt{3}\,i}{2}-\frac{1}{2}}{9\,\left(\frac{  \sqrt{23}}{2\,3^{\frac{3}{2}}}-\frac{25}{54}\right)^{\frac{1}{3}}}+  \frac{1}{3} , x=\left(\frac{\sqrt{23}}{2\,3^{\frac{3}{2}}}-\frac{25  }{54}\right)^{\frac{1}{3}}+\frac{1}{9\,\left(\frac{\sqrt{23}}{2\,3^{  \frac{3}{2}}}-\frac{25}{54}\right)^{\frac{1}{3}}}+\frac{1}{3}   \right] 
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('integrate(h(x),x,-1,1)) // menghitung luas daerah yang dibatasi 2 kurva
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\int_{-1}^{1}{x^3-x^2+1\;dx}=\frac{4}{3}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{Arsiran daerah yang dibatasi kurva $f(x)$ dan $g(x)$ sebagai berikut:}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>x=-1:0.01:1; plot2d(x,f(x),>bar,>filled,style="-",fillcolor=orange,>grid); plot2d(x,g(x),>bar,>add,>filled,style="-",fillcolor=white); label("f(x)",0,2.1); label("g(x)",0.5,0.3):
+\end{eulerprompt}
+\eulerimg{19}{images/raffi kalkulus-176.png}
+\eulersubheading{Volume benda putar}
+\begin{eulercomment}
+Menghitung volume hasil perputaran kurva\\
+\end{eulercomment}
+\begin{eulerformula}
+\[
+m(x)=x^3+1
+\]
+\end{eulerformula}
+\begin{eulercomment}
+dari x=-1 sampai x=0. Diputar terhadap sumbu-x.\\
+Jawab:
+\end{eulercomment}
+\begin{eulerprompt}
+>function m(x) &= x^4+3; $m(x)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+x^4+3
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('integrate(pi*(m(x))^2,x,-1,0)) // Menghitung volume hasil perputaran m(x)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\pi\,\int_{-1}^{0}{\left(x^4+3\right)^2\;dx}=\frac{464\,\pi}{45}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+Daerah di bawah kurva yang akan dirotasi terhadap sumbu x sebagai
+berikut:
+\end{eulercomment}
+\begin{eulerprompt}
+>plot2d("m(x)",-1,0,-1,2,grid=7,>filled, style="/\(\backslash\)"): 
+\end{eulerprompt}
+\eulerimg{19}{images/raffi kalkulus-179.png}
+\begin{eulercomment}
+Hasil perputaran m(x) terhadap sumbu x sebagai berikut:
+\end{eulercomment}
+\begin{eulerprompt}
+>plot3d("m(x)",-1,0,-1,1,>rotate,angle=6.3,>hue,>contour,color=redgreen,height=11):
+\end{eulerprompt}
+\eulerimg{19}{images/raffi kalkulus-180.png}
+\begin{eulercomment}
+\end{eulercomment}
+\eulersubheading{Menghitung panjang kurva}
+\begin{eulercomment}
+Menghitung panjang kurva\\
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{$y=x^2-x+1$}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+dari x=1 sampai x=3.
+\end{eulercomment}
+\begin{eulerprompt}
+>function d(x) &= x^2-x+1; $d(x)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+x^2-x+1
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>plot2d("d(x)",-5,6): // gambar kurva d(x)
+\end{eulerprompt}
+\eulerimg{19}{images/raffi kalkulus-182.png}
+\begin{eulerprompt}
+>$showev('limit((d(x+h)-d(x))/h,h,0))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{h\rightarrow 0}{\frac{\left(x+h\right)^2-x^2-h}{h}}=2\,x-1
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>function dd(x) &= limit((d(x+h)-d(x))/h,h,0); $dd(x)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+2\,x-1
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>function q(x) &= ((dd(x))^2); $q(x)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\left(2\,x-1\right)^2
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('integrate(sqrt(1+q(x)),x,1,3)) // menghitung panjang kurva
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\int_{1}^{3}{\sqrt{q\left(x\right)+1}\;dx}=\int_{1}^{3}{\sqrt{q  \left(x\right)+1}\;dx}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+Jadi, panjang kurva\\
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{$y=x^2-x+1$}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+dari x=0 sampai x=4 adalah\\
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\text{$S=\frac{asinh 5+5sqrt(26)}{4}-\frac{asinh(1)+sqrt(2)}{4}$}.
+\]
+\end{eulerformula}
+\begin{eulercomment}
+\begin{eulercomment}
+\eulerheading{Aplikasi Integral Tentu}
+\begin{eulerprompt}
+>plot2d("x^3-x",-0.1,1.1); plot2d("-x^2",>add);  ...
+>b=solve("x^3-x+x^2",0.5); x=linspace(0,b,200); xi=flipx(x); ...
+>plot2d(x|xi,x^3-x|-xi^2,>filled,style="|",fillcolor=1,>add): // Plot daerah antara 2 kurva
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-189.png}
+\begin{eulerprompt}
+>a=solve("x^3-x+x^2",0), b=solve("x^3-x+x^2",1) // absis titik-titik potong kedua kurva
+\end{eulerprompt}
+\begin{euleroutput}
+  0
+  0.61803398875
+\end{euleroutput}
+\begin{eulerprompt}
+>integrate("(-x^2)-(x^3-x)",a,b) // luas daerah yang diarsir
+\end{eulerprompt}
+\begin{euleroutput}
+  0.0758191713542
+\end{euleroutput}
+\begin{eulerprompt}
+>a &= solve((-x^2)-(x^3-x),x); $a // menentukan absis titik potong kedua kurva secara eksak
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\left[ x=\frac{-\sqrt{5}-1}{2} , x=\frac{\sqrt{5}-1}{2} , x=0   \right] 
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$showev('integrate(-x^2-x^3+x,x,0,(sqrt(5)-1)/2)) // Nilai integral secara eksak
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\int_{0}^{\frac{\sqrt{5}-1}{2}}{-x^3-x^2+x\;dx}=\frac{13-5^{\frac{3  }{2}}}{24}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$float(%)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\int_{0.0}^{0.6180339887498949}{-1.0\,x^3-1.0\,x^2+x\;dx}=  0.07581917135421037
+\]
+\end{eulerformula}
+\eulersubheading{Panjang Kurva}
+\begin{eulercomment}
+Hitunglah panjang kurva berikut ini dan luas daerah di dalam kurva
+tersebut.
+
+\end{eulercomment}
+\begin{eulerformula}
+\[
+\gamma(t) = (r(t) \cos(t), r(t) \sin(t))
+\]
+\end{eulerformula}
+\begin{eulercomment}
+dengan
+
+\end{eulercomment}
+\begin{eulerformula}
+\[
+r(t) = 1 + \dfrac{\sin(3t)}{2},\quad 0\le t\le 2\pi.
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>t=linspace(0,2pi,1000); r=1+sin(3*t)/2; x=r*cos(t); y=r*sin(t); ...
+>plot2d(x,y,>filled,fillcolor=red,style="/",r=1.5): // Kita gambar kurvanya terlebih dahulu
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-195.png}
+\begin{eulerprompt}
+>function r(t) &= 1+sin(3*t)/2; $'r(t)=r(t)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+r\left(\left[ 0 , 0.01 , 0.02 , 0.03 , 0.04 , 0.05 , 0.06 , 0.07 ,   0.08 , 0.09 , 0.1 , 0.11 , 0.12 , 0.13 , 0.14 , 0.15 , 0.16 , 0.17   , 0.18 , 0.19 , 0.2 , 0.21 , 0.2200000000000001 ,   0.2300000000000001 , 0.2400000000000001 , 0.2500000000000001 ,   0.2600000000000001 , 0.2700000000000001 , 0.2800000000000001 ,   0.2900000000000001 , 0.3000000000000001 , 0.3100000000000001 ,   0.3200000000000001 , 0.3300000000000001 , 0.3400000000000001 ,   0.3500000000000001 , 0.3600000000000002 , 0.3700000000000002 ,   0.3800000000000002 , 0.3900000000000002 , 0.4000000000000002 ,   0.4100000000000002 , 0.4200000000000002 , 0.4300000000000002 ,   0.4400000000000002 , 0.4500000000000002 , 0.4600000000000002 ,   0.4700000000000003 , 0.4800000000000003 , 0.4900000000000003 ,   0.5000000000000002 , 0.5100000000000002 , 0.5200000000000002 ,   0.5300000000000002 , 0.5400000000000003 , 0.5500000000000003 ,   0.5600000000000003 , 0.5700000000000003 , 0.5800000000000003 ,   0.5900000000000003 , 0.6000000000000003 , 0.6100000000000003 ,   0.6200000000000003 , 0.6300000000000003 , 0.6400000000000003 ,   0.6500000000000004 , 0.6600000000000004 , 0.6700000000000004 ,   0.6800000000000004 , 0.6900000000000004 , 0.7000000000000004 ,   0.7100000000000004 , 0.7200000000000004 , 0.7300000000000004 ,   0.7400000000000004 , 0.7500000000000004 , 0.7600000000000005 ,   0.7700000000000005 , 0.7800000000000005 , 0.7900000000000005 ,   0.8000000000000005 , 0.8100000000000005 , 0.8200000000000005 ,   0.8300000000000005 , 0.8400000000000005 , 0.8500000000000005 ,   0.8600000000000005 , 0.8700000000000006 , 0.8800000000000006 ,   0.8900000000000006 , 0.9000000000000006 , 0.9100000000000006 ,   0.9200000000000006 , 0.9300000000000006 , 0.9400000000000006 ,   0.9500000000000006 , 0.9600000000000006 , 0.9700000000000006 ,   0.9800000000000006 , 0.9900000000000007 \right] \right)=\left[ 1 ,   1.014997750101248 , 1.029982003239722 , 1.044939274599006 ,   1.05985610364446 , 1.0747190662368 , 1.089514786712912 ,   1.10422994992305 , 1.118851313213567 , 1.133365718344415 ,   1.14776010333067 , 1.162021514197434 , 1.176137116637545 ,   1.190094207561581 , 1.203880226529785 , 1.217482767055615 ,   1.230889587770742 , 1.244088623441454 , 1.257067995826556 ,   1.269816024366985 , 1.282321236697518 , 1.294572378971135 ,   1.306558425986717 , 1.318268591110984 , 1.329692335985737 ,   1.340819380011667 , 1.351639709600205 , 1.362143587185071 ,   1.37232155998543 , 1.382164468512753 , 1.391663454813742 ,   1.400809970441889 , 1.409595784150499 , 1.41801298930026 ,   1.426054010974682 , 1.433711612797009 , 1.440978903442474 ,   1.447849342840024 , 1.454316748057942 , 1.460375298868068 ,   1.466019542983613 , 1.471244400965849 , 1.476045170795258 ,   1.480417532103036 , 1.484357550059133 , 1.48786167891333 ,   1.49092676518618 , 1.493550050506925 , 1.495729174095843 ,   1.49746217488879 , 1.498747493302027 , 1.499583972635738 ,   1.499970860114983 , 1.499907807567145 , 1.499394871735262 ,   1.498432514226959 , 1.497021601099038 , 1.495163402078079 ,   1.492859589417777 , 1.490112236394023 , 1.486923815439098 ,   1.483297195916649 , 1.479235641539457 , 1.474742807432315 ,   1.469822736842662 , 1.464479857501934 , 1.458718977640905 ,   1.4525452816626 , 1.44596432547669 , 1.438982031499539 ,   1.431604683324436 , 1.423838920066784 , 1.415691730389341 ,   1.407170446212898 , 1.398282736118043 , 1.38903659844396 ,   1.379440354090461 , 1.369502639029735 , 1.359232396534563 ,   1.348638869129968 , 1.337731590275575 , 1.326520375786132 ,   1.315015314997945 , 1.303226761689157 , 1.29116532476204 ,   1.278841858695708 , 1.26626745377781 , 1.253453426124026 ,   1.240411307494323 , 1.227152834915152 , 1.213689940116914 ,   1.200034738796209 , 1.186199519712527 , 1.172196733629194 ,   1.158038982108526 , 1.143739006171271 , 1.129309674830555 ,   1.114763973510631 , 1.100114992360884 , 1.085375914475572 \right] 
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>function fx(t) &= r(t)*cos(t); $'fx(t)=fx(t)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+{\it fx}\left(\left[ 0 , 0.01 , 0.02 , 0.03 , 0.04 , 0.05 , 0.06 ,   0.07 , 0.08 , 0.09 , 0.1 , 0.11 , 0.12 , 0.13 , 0.14 , 0.15 , 0.16   , 0.17 , 0.18 , 0.19 , 0.2 , 0.21 , 0.2200000000000001 ,   0.2300000000000001 , 0.2400000000000001 , 0.2500000000000001 ,   0.2600000000000001 , 0.2700000000000001 , 0.2800000000000001 ,   0.2900000000000001 , 0.3000000000000001 , 0.3100000000000001 ,   0.3200000000000001 , 0.3300000000000001 , 0.3400000000000001 ,   0.3500000000000001 , 0.3600000000000002 , 0.3700000000000002 ,   0.3800000000000002 , 0.3900000000000002 , 0.4000000000000002 ,   0.4100000000000002 , 0.4200000000000002 , 0.4300000000000002 ,   0.4400000000000002 , 0.4500000000000002 , 0.4600000000000002 ,   0.4700000000000003 , 0.4800000000000003 , 0.4900000000000003 ,   0.5000000000000002 , 0.5100000000000002 , 0.5200000000000002 ,   0.5300000000000002 , 0.5400000000000003 , 0.5500000000000003 ,   0.5600000000000003 , 0.5700000000000003 , 0.5800000000000003 ,   0.5900000000000003 , 0.6000000000000003 , 0.6100000000000003 ,   0.6200000000000003 , 0.6300000000000003 , 0.6400000000000003 ,   0.6500000000000004 , 0.6600000000000004 , 0.6700000000000004 ,   0.6800000000000004 , 0.6900000000000004 , 0.7000000000000004 ,   0.7100000000000004 , 0.7200000000000004 , 0.7300000000000004 ,   0.7400000000000004 , 0.7500000000000004 , 0.7600000000000005 ,   0.7700000000000005 , 0.7800000000000005 , 0.7900000000000005 ,   0.8000000000000005 , 0.8100000000000005 , 0.8200000000000005 ,   0.8300000000000005 , 0.8400000000000005 , 0.8500000000000005 ,   0.8600000000000005 , 0.8700000000000006 , 0.8800000000000006 ,   0.8900000000000006 , 0.9000000000000006 , 0.9100000000000006 ,   0.9200000000000006 , 0.9300000000000006 , 0.9400000000000006 ,   0.9500000000000006 , 0.9600000000000006 , 0.9700000000000006 ,   0.9800000000000006 , 0.9900000000000007 \right] \right)=\left[ 1 ,   1.014947000636657 , 1.029776013705529 , 1.044469087191079 ,   1.059008331806833 , 1.073375947255439 , 1.087554248364218 ,   1.101525691055367 , 1.11527289811021 , 1.128778684687222 ,   1.142026083553954 , 1.154998369993414 , 1.16767908634602 ,   1.180052066148761 , 1.192101457833886 , 1.203811747950136 ,   1.215167783870255 , 1.226154795949382 , 1.236758419099762 ,   1.246964713748154 , 1.256760186143285 , 1.266131807981756 ,   1.275067035321848 , 1.283553826755846 , 1.29158066081265 ,   1.29913655256367 , 1.306211069406282 , 1.312794346000405 ,   1.318877098335118 , 1.324450636903608 , 1.329506878966172 ,   1.334038359882425 , 1.338038243495345 , 1.341500331551311 ,   1.344419072141793 , 1.346789567153917 , 1.348607578718725 ,   1.349869534647481 , 1.350572532848044 , 1.350714344714907 ,   1.350293417488142 , 1.349308875578123 , 1.347760520854542 ,   1.345648831899879 , 1.342974962229111 , 1.339740737479097 ,   1.335948651572729 , 1.331601861864506 , 1.326704183275865 ,   1.321260081430156 , 1.315274664798767 , 1.308753675871437 ,   1.301703481365363 , 1.294131061489226 , 1.286043998279732 ,   1.277450463029762 , 1.268359202828647 , 1.25877952623647 ,   1.248721288115691 , 1.238194873644713 , 1.227211181539273 ,   1.215781606508839 , 1.203918020976346 , 1.191632756090801 ,   1.17893858206338 , 1.165848687858719 , 1.152376660274093 ,   1.138536462440146 , 1.124342411777761 , 1.10980915744646 ,   1.094951657320579 , 1.079785154530145 , 1.064325153604093 ,   1.04858739625406 , 1.032587836837555 , 1.0163426175398 ,   0.999868043313951 , 0.9831805566197906 , 0.9662967120012925 ,   0.9492331505436565 , 0.932006574250646 , 0.9146337203831 ,   0.897131335799599 , 0.8795161513401855 , 0.8618048562939812 ,   0.8440140729913906 , 0.8261603315613344 , 0.8082600448937051 ,   0.7903294838468643 , 0.7723847527396025 , 0.754441765166499 ,   0.7365162201750889 , 0.7186235788426429 , 0.7007790412897039 ,   0.6829975241668103 , 0.6652936386500562 , 0.6476816689803099 ,   0.6301755515800127 , 0.6127888547805567 , 0.595534759192214 \right] 
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>function fy(t) &= r(t)*sin(t); $'fy(t)=fy(t)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+{\it fy}\left(\left[ 0 , 0.01 , 0.02 , 0.03 , 0.04 , 0.05 , 0.06 ,   0.07 , 0.08 , 0.09 , 0.1 , 0.11 , 0.12 , 0.13 , 0.14 , 0.15 , 0.16   , 0.17 , 0.18 , 0.19 , 0.2 , 0.21 , 0.2200000000000001 ,   0.2300000000000001 , 0.2400000000000001 , 0.2500000000000001 ,   0.2600000000000001 , 0.2700000000000001 , 0.2800000000000001 ,   0.2900000000000001 , 0.3000000000000001 , 0.3100000000000001 ,   0.3200000000000001 , 0.3300000000000001 , 0.3400000000000001 ,   0.3500000000000001 , 0.3600000000000002 , 0.3700000000000002 ,   0.3800000000000002 , 0.3900000000000002 , 0.4000000000000002 ,   0.4100000000000002 , 0.4200000000000002 , 0.4300000000000002 ,   0.4400000000000002 , 0.4500000000000002 , 0.4600000000000002 ,   0.4700000000000003 , 0.4800000000000003 , 0.4900000000000003 ,   0.5000000000000002 , 0.5100000000000002 , 0.5200000000000002 ,   0.5300000000000002 , 0.5400000000000003 , 0.5500000000000003 ,   0.5600000000000003 , 0.5700000000000003 , 0.5800000000000003 ,   0.5900000000000003 , 0.6000000000000003 , 0.6100000000000003 ,   0.6200000000000003 , 0.6300000000000003 , 0.6400000000000003 ,   0.6500000000000004 , 0.6600000000000004 , 0.6700000000000004 ,   0.6800000000000004 , 0.6900000000000004 , 0.7000000000000004 ,   0.7100000000000004 , 0.7200000000000004 , 0.7300000000000004 ,   0.7400000000000004 , 0.7500000000000004 , 0.7600000000000005 ,   0.7700000000000005 , 0.7800000000000005 , 0.7900000000000005 ,   0.8000000000000005 , 0.8100000000000005 , 0.8200000000000005 ,   0.8300000000000005 , 0.8400000000000005 , 0.8500000000000005 ,   0.8600000000000005 , 0.8700000000000006 , 0.8800000000000006 ,   0.8900000000000006 , 0.9000000000000006 , 0.9100000000000006 ,   0.9200000000000006 , 0.9300000000000006 , 0.9400000000000006 ,   0.9500000000000006 , 0.9600000000000006 , 0.9700000000000006 ,   0.9800000000000006 , 0.9900000000000007 \right] \right)=\left[ 0 ,   0.01014980833556662 , 0.02059826678292271 , 0.03134347622283015 ,   0.04238293991838228 , 0.05371356612987439 , 0.06533167172990376 ,   0.07723298681299934 , 0.08941266029246918 , 0.1018652664755576 ,   0.1145848126064173 , 0.1275647473648353 , 0.1407979703071057 ,   0.1542768422339107 , 0.1679931964685752 , 0.1819383510275811 ,   0.1961031216637831 , 0.2104778357613507 , 0.2250523470600841 ,   0.2398160511854019 , 0.2547579019589912 , 0.2698664284638497 ,   0.2851297528362152 , 0.3005356087557041 , 0.3160713606038417 ,   0.3317240232600813 , 0.3474802825033731 , 0.3633265159863522 ,   0.3792488147482899 , 0.3952330052320643 , 0.411264671769591 ,   0.4273291794993832 , 0.4434116976792021 , 0.4594972233561165 ,   0.4755706053556919 , 0.4916165685515136 , 0.5076197383757777 ,   0.5235646655312819 , 0.5394358508648145 , 0.5552177703616642 ,   0.5708949002207642 , 0.5864517419698421 , 0.6018728475798654 ,   0.6171428445380648 , 0.6322464608388652 , 0.6471685498521687 ,   0.6618941150286309 , 0.6764083344018014 , 0.6906965848473219 ,   0.704744466059751 , 0.7185378242080237 , 0.7320627752310482 ,   0.7453057277355214 , 0.7582534054586558 , 0.7708928692592016 ,   0.7832115386008901 , 0.7951972124932317 , 0.8068380898554457 ,   0.8181227892702304 , 0.8290403680950348 , 0.8395803408995157 ,   0.8497326971989371 , 0.8594879184543822 , 0.8688369943118147 ,   0.877771438053233 , 0.8862833012344233 , 0.894365187485098 ,   0.9020102654485477 , 0.9092122808393135 , 0.91596556759876 ,   0.9222650581299157 , 0.9281062925943645 , 0.9334854272555032 ,   0.9383992418539865 , 0.9428451460027243 , 0.9468211845903713 ,   0.9503260421838114 , 0.9533590464217597 , 0.9559201703932094 ,   0.9580100339960551 , 0.9596299042728891 , 0.9607816947225576 ,   0.9614679635877484 , 0.9616919111204768 , 0.9614573758289937 ,   0.9607688297112769 , 0.9596313724818526 , 0.9580507248003547 ,   0.9560332205117796 , 0.9535857979100135 , 0.950715990037748 ,   0.9474319140374602 , 0.9437422595696462 , 0.9396562763159917 ,   0.9351837605866338 , 0.9303350410521015 , 0.9251209636219332 ,   0.9195528754933222 , 0.9136426083945087 , 0.9074024610488752   \right] 
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>function ds(t) &= trigreduce(radcan(sqrt(diff(fx(t),t)^2+diff(fy(t),t)^2)));
+\end{eulerprompt}
+\begin{euleroutput}
+  Maxima said:
+  diff: second argument must be a variable; found errexp1
+   -- an error. To debug this try: debugmode(true);
+  
+  Error in:
+  ... e(radcan(sqrt(diff(fx(t),t)^2+diff(fy(t),t)^2))); ...
+                                                       ^
+\end{euleroutput}
+\begin{eulerprompt}
+>$integrate(ds(x),x,0,2*pi) //panjang (keliling) kurva
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\int_{0}^{2\,\pi}{{\it ds}\left(x\right)\;dx}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>integrate("ds(x)",0,2*pi)
+\end{eulerprompt}
+\begin{euleroutput}
+  Function ds not found.
+  Try list ... to find functions!
+  Error in expression: ds(x)
+   %mapexpression1:
+      return expr(x,args());
+  Error in map.
+   %evalexpression:
+      if maps then return %mapexpression1(x,f$;args());
+  gauss:
+      if maps then y=%evalexpression(f$,a+h-(h*xn)',maps;args());
+  adaptivegauss:
+      t1=gauss(f$,c,c+h;args(),=maps);
+  Try "trace errors" to inspect local variables after errors.
+  integrate:
+      return adaptivegauss(f$,a,b,eps*1000;args(),=maps);
+\end{euleroutput}
+\begin{eulerprompt}
+>a=0.1; plot2d("exp(a*x)*cos(x)","exp(a*x)*sin(x)",r=2,xmin=0,xmax=2*pi):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-200.png}
+\begin{eulerprompt}
+>&kill(a) // hapus expresi a
+\end{eulerprompt}
+\begin{euleroutput}
+  
+                                   done
+  
+\end{euleroutput}
+\begin{eulerprompt}
+>function fx(t) &= exp(a*t)*cos(t); $'fx(t)=fx(t)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+{\it fx}\left(\left[ 0 , 0.01 , 0.02 , 0.03 , 0.04 , 0.05 , 0.06 ,   0.07 , 0.08 , 0.09 , 0.1 , 0.11 , 0.12 , 0.13 , 0.14 , 0.15 , 0.16   , 0.17 , 0.18 , 0.19 , 0.2 , 0.21 , 0.2200000000000001 ,   0.2300000000000001 , 0.2400000000000001 , 0.2500000000000001 ,   0.2600000000000001 , 0.2700000000000001 , 0.2800000000000001 ,   0.2900000000000001 , 0.3000000000000001 , 0.3100000000000001 ,   0.3200000000000001 , 0.3300000000000001 , 0.3400000000000001 ,   0.3500000000000001 , 0.3600000000000002 , 0.3700000000000002 ,   0.3800000000000002 , 0.3900000000000002 , 0.4000000000000002 ,   0.4100000000000002 , 0.4200000000000002 , 0.4300000000000002 ,   0.4400000000000002 , 0.4500000000000002 , 0.4600000000000002 ,   0.4700000000000003 , 0.4800000000000003 , 0.4900000000000003 ,   0.5000000000000002 , 0.5100000000000002 , 0.5200000000000002 ,   0.5300000000000002 , 0.5400000000000003 , 0.5500000000000003 ,   0.5600000000000003 , 0.5700000000000003 , 0.5800000000000003 ,   0.5900000000000003 , 0.6000000000000003 , 0.6100000000000003 ,   0.6200000000000003 , 0.6300000000000003 , 0.6400000000000003 ,   0.6500000000000004 , 0.6600000000000004 , 0.6700000000000004 ,   0.6800000000000004 , 0.6900000000000004 , 0.7000000000000004 ,   0.7100000000000004 , 0.7200000000000004 , 0.7300000000000004 ,   0.7400000000000004 , 0.7500000000000004 , 0.7600000000000005 ,   0.7700000000000005 , 0.7800000000000005 , 0.7900000000000005 ,   0.8000000000000005 , 0.8100000000000005 , 0.8200000000000005 ,   0.8300000000000005 , 0.8400000000000005 , 0.8500000000000005 ,   0.8600000000000005 , 0.8700000000000006 , 0.8800000000000006 ,   0.8900000000000006 , 0.9000000000000006 , 0.9100000000000006 ,   0.9200000000000006 , 0.9300000000000006 , 0.9400000000000006 ,   0.9500000000000006 , 0.9600000000000006 , 0.9700000000000006 ,   0.9800000000000006 , 0.9900000000000007 \right] \right)=\left[ 1 ,   0.9999500004166653\,e^{0.01\,a} , 0.9998000066665778\,e^{0.02\,a} ,   0.9995500337489875\,e^{0.03\,a} , 0.9992001066609779\,e^{0.04\,a} ,   0.9987502603949663\,e^{0.05\,a} , 0.9982005399352042\,e^{0.06\,a} ,   0.9975510002532796\,e^{0.07\,a} , 0.9968017063026194\,e^{0.08\,a} ,   0.9959527330119943\,e^{0.09\,a} , 0.9950041652780258\,e^{0.1\,a} ,   0.9939560979566968\,e^{0.11\,a} , 0.9928086358538663\,e^{0.12\,a} ,   0.9915618937147881\,e^{0.13\,a} , 0.9902159962126372\,e^{0.14\,a} ,   0.9887710779360422\,e^{0.15\,a} , 0.9872272833756269\,e^{0.16\,a} ,   0.9855847669095608\,e^{0.17\,a} , 0.9838436927881214\,e^{0.18\,a} ,   0.9820042351172703\,e^{0.19\,a} , 0.9800665778412416\,e^{0.2\,a} ,   0.9780309147241483\,e^{0.21\,a} , 0.9758974493306055\,e^{  0.2200000000000001\,a} , 0.9736663950053748\,e^{0.2300000000000001\,  a} , 0.9713379748520296\,e^{0.2400000000000001\,a} ,   0.9689124217106447\,e^{0.2500000000000001\,a} , 0.9663899781345132\,  e^{0.2600000000000001\,a} , 0.9637708963658905\,e^{  0.2700000000000001\,a} , 0.9610554383107709\,e^{0.2800000000000001\,  a} , 0.9582438755126972\,e^{0.2900000000000001\,a} ,   0.955336489125606\,e^{0.3000000000000001\,a} , 0.9523335698857134\,e  ^{0.3100000000000001\,a} , 0.9492354180824408\,e^{0.3200000000000001  \,a} , 0.9460423435283869\,e^{0.3300000000000001\,a} ,   0.9427546655283462\,e^{0.3400000000000001\,a} , 0.9393727128473789\,  e^{0.3500000000000001\,a} , 0.9358968236779348\,e^{  0.3600000000000002\,a} , 0.9323273456060344\,e^{0.3700000000000002\,  a} , 0.9286646355765101\,e^{0.3800000000000002\,a} ,   0.924909059857313\,e^{0.3900000000000002\,a} , 0.921060994002885\,e  ^{0.4000000000000002\,a} , 0.917120822816605\,e^{0.4100000000000002  \,a} , 0.9130889403123081\,e^{0.4200000000000002\,a} ,   0.9089657496748851\,e^{0.4300000000000002\,a} , 0.9047516632199634\,  e^{0.4400000000000002\,a} , 0.9004471023526768\,e^{  0.4500000000000002\,a} , 0.8960524975255252\,e^{0.4600000000000002\,  a} , 0.8915682881953289\,e^{0.4700000000000003\,a} ,   0.886994922779284\,e^{0.4800000000000003\,a} , 0.8823328586101213\,e  ^{0.4900000000000003\,a} , 0.8775825618903726\,e^{0.5000000000000002  \,a} , 0.8727445076457512\,e^{0.5100000000000002\,a} ,   0.8678191796776498\,e^{0.5200000000000002\,a} , 0.8628070705147609\,  e^{0.5300000000000002\,a} , 0.857708681363824\,e^{0.5400000000000003  \,a} , 0.8525245220595056\,e^{0.5500000000000003\,a} ,   0.847255111013416\,e^{0.5600000000000003\,a} , 0.8419009751622686\,e  ^{0.5700000000000003\,a} , 0.8364626499151868\,e^{0.5800000000000003  \,a} , 0.8309406791001633\,e^{0.5900000000000003\,a} ,   0.8253356149096781\,e^{0.6000000000000003\,a} , 0.8196480178454794\,  e^{0.6100000000000003\,a} , 0.8138784566625338\,e^{  0.6200000000000003\,a} , 0.8080275083121516\,e^{0.6300000000000003\,  a} , 0.8020957578842924\,e^{0.6400000000000003\,a} ,   0.7960837985490556\,e^{0.6500000000000004\,a} , 0.7899922314973649\,  e^{0.6600000000000004\,a} , 0.783821665880849\,e^{0.6700000000000004  \,a} , 0.7775727187509277\,e^{0.6800000000000004\,a} ,   0.7712460149971063\,e^{0.6900000000000004\,a} , 0.7648421872844882\,  e^{0.7000000000000004\,a} , 0.7583618759905079\,e^{  0.7100000000000004\,a} , 0.7518057291408947\,e^{0.7200000000000004\,  a} , 0.7451744023448701\,e^{0.7300000000000004\,a} ,   0.7384685587295876\,e^{0.7400000000000004\,a} , 0.7316888688738206\,  e^{0.7500000000000004\,a} , 0.7248360107409049\,e^{  0.7600000000000005\,a} , 0.7179106696109431\,e^{0.7700000000000005\,  a} , 0.7109135380122771\,e^{0.7800000000000005\,a} ,   0.7038453156522357\,e^{0.7900000000000005\,a} , 0.696706709347165\,e  ^{0.8000000000000005\,a} , 0.6894984329517466\,e^{0.8100000000000005  \,a} , 0.6822212072876132\,e^{0.8200000000000005\,a} ,   0.6748757600712667\,e^{0.8300000000000005\,a} , 0.6674628258413078\,  e^{0.8400000000000005\,a} , 0.6599831458849817\,e^{  0.8500000000000005\,a} , 0.6524374681640515\,e^{0.8600000000000005\,  a} , 0.6448265472400008\,e^{0.8700000000000006\,a} ,   0.6371511441985798\,e^{0.8800000000000006\,a} , 0.6294120265736964\,  e^{0.8900000000000006\,a} , 0.6216099682706641\,e^{  0.9000000000000006\,a} , 0.6137457494888111\,e^{0.9100000000000006\,  a} , 0.6058201566434623\,e^{0.9200000000000006\,a} ,   0.5978339822872978\,e^{0.9300000000000006\,a} , 0.5897880250310977\,  e^{0.9400000000000006\,a} , 0.581683089463883\,e^{0.9500000000000006  \,a} , 0.5735199860724561\,e^{0.9600000000000006\,a} ,   0.5652995311603538\,e^{0.9700000000000006\,a} , 0.5570225467662168\,  e^{0.9800000000000006\,a} , 0.548689860581587\,e^{0.9900000000000007  \,a} \right] 
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>function fy(t) &= exp(a*t)*sin(t); $'fy(t)=fy(t)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+{\it fy}\left(\left[ 0 , 0.01 , 0.02 , 0.03 , 0.04 , 0.05 , 0.06 ,   0.07 , 0.08 , 0.09 , 0.1 , 0.11 , 0.12 , 0.13 , 0.14 , 0.15 , 0.16   , 0.17 , 0.18 , 0.19 , 0.2 , 0.21 , 0.2200000000000001 ,   0.2300000000000001 , 0.2400000000000001 , 0.2500000000000001 ,   0.2600000000000001 , 0.2700000000000001 , 0.2800000000000001 ,   0.2900000000000001 , 0.3000000000000001 , 0.3100000000000001 ,   0.3200000000000001 , 0.3300000000000001 , 0.3400000000000001 ,   0.3500000000000001 , 0.3600000000000002 , 0.3700000000000002 ,   0.3800000000000002 , 0.3900000000000002 , 0.4000000000000002 ,   0.4100000000000002 , 0.4200000000000002 , 0.4300000000000002 ,   0.4400000000000002 , 0.4500000000000002 , 0.4600000000000002 ,   0.4700000000000003 , 0.4800000000000003 , 0.4900000000000003 ,   0.5000000000000002 , 0.5100000000000002 , 0.5200000000000002 ,   0.5300000000000002 , 0.5400000000000003 , 0.5500000000000003 ,   0.5600000000000003 , 0.5700000000000003 , 0.5800000000000003 ,   0.5900000000000003 , 0.6000000000000003 , 0.6100000000000003 ,   0.6200000000000003 , 0.6300000000000003 , 0.6400000000000003 ,   0.6500000000000004 , 0.6600000000000004 , 0.6700000000000004 ,   0.6800000000000004 , 0.6900000000000004 , 0.7000000000000004 ,   0.7100000000000004 , 0.7200000000000004 , 0.7300000000000004 ,   0.7400000000000004 , 0.7500000000000004 , 0.7600000000000005 ,   0.7700000000000005 , 0.7800000000000005 , 0.7900000000000005 ,   0.8000000000000005 , 0.8100000000000005 , 0.8200000000000005 ,   0.8300000000000005 , 0.8400000000000005 , 0.8500000000000005 ,   0.8600000000000005 , 0.8700000000000006 , 0.8800000000000006 ,   0.8900000000000006 , 0.9000000000000006 , 0.9100000000000006 ,   0.9200000000000006 , 0.9300000000000006 , 0.9400000000000006 ,   0.9500000000000006 , 0.9600000000000006 , 0.9700000000000006 ,   0.9800000000000006 , 0.9900000000000007 \right] \right)=\left[ 0 ,   0.009999833334166664\,e^{0.01\,a} , 0.01999866669333308\,e^{0.02\,a}   , 0.02999550020249566\,e^{0.03\,a} , 0.03998933418663416\,e^{0.04\,  a} , 0.04997916927067833\,e^{0.05\,a} , 0.0599640064794446\,e^{0.06  \,a} , 0.06994284733753277\,e^{0.07\,a} , 0.0799146939691727\,e^{  0.08\,a} , 0.08987854919801104\,e^{0.09\,a} , 0.09983341664682814\,e  ^{0.1\,a} , 0.1097783008371748\,e^{0.11\,a} , 0.1197122072889193\,e  ^{0.12\,a} , 0.1296341426196948\,e^{0.13\,a} , 0.1395431146442365\,e  ^{0.14\,a} , 0.1494381324735992\,e^{0.15\,a} , 0.159318206614246\,e  ^{0.16\,a} , 0.169182349066996\,e^{0.17\,a} , 0.1790295734258242\,e  ^{0.18\,a} , 0.1888588949765006\,e^{0.19\,a} , 0.1986693307950612\,e  ^{0.2\,a} , 0.2084598998460996\,e^{0.21\,a} , 0.2182296230808694\,e  ^{0.2200000000000001\,a} , 0.2279775235351885\,e^{0.2300000000000001  \,a} , 0.2377026264271347\,e^{0.2400000000000001\,a} ,   0.247403959254523\,e^{0.2500000000000001\,a} , 0.2570805518921552\,e  ^{0.2600000000000001\,a} , 0.2667314366888312\,e^{0.2700000000000001  \,a} , 0.2763556485641138\,e^{0.2800000000000001\,a} ,   0.2859522251048356\,e^{0.2900000000000001\,a} , 0.2955202066613397\,  e^{0.3000000000000001\,a} , 0.3050586364434436\,e^{  0.3100000000000001\,a} , 0.3145665606161179\,e^{0.3200000000000001\,  a} , 0.3240430283948685\,e^{0.3300000000000001\,a} ,   0.3334870921408145\,e^{0.3400000000000001\,a} , 0.3428978074554515\,  e^{0.3500000000000001\,a} , 0.3522742332750901\,e^{  0.3600000000000002\,a} , 0.3616154319649622\,e^{0.3700000000000002\,  a} , 0.3709204694129828\,e^{0.3800000000000002\,a} ,   0.3801884151231616\,e^{0.3900000000000002\,a} , 0.3894183423086507\,  e^{0.4000000000000002\,a} , 0.3986093279844231\,e^{  0.4100000000000002\,a} , 0.4077604530595704\,e^{0.4200000000000002\,  a} , 0.416870802429211\,e^{0.4300000000000002\,a} ,   0.4259394650659998\,e^{0.4400000000000002\,a} , 0.4349655341112304\,  e^{0.4500000000000002\,a} , 0.44394810696552\,e^{0.4600000000000002  \,a} , 0.4528862853790685\,e^{0.4700000000000003\,a} ,   0.4617791755414831\,e^{0.4800000000000003\,a} , 0.4706258881711582\,  e^{0.4900000000000003\,a} , 0.4794255386042032\,e^{  0.5000000000000002\,a} , 0.4881772468829077\,e^{0.5100000000000002\,  a} , 0.4968801378437369\,e^{0.5200000000000002\,a} ,   0.5055333412048472\,e^{0.5300000000000002\,a} , 0.5141359916531133\,  e^{0.5400000000000003\,a} , 0.5226872289306594\,e^{  0.5500000000000003\,a} , 0.5311861979208836\,e^{0.5600000000000003\,  a} , 0.5396320487339695\,e^{0.5700000000000003\,a} ,   0.5480239367918738\,e^{0.5800000000000003\,a} , 0.556361022912784\,e  ^{0.5900000000000003\,a} , 0.5646424733950356\,e^{0.6000000000000003  \,a} , 0.5728674601004815\,e^{0.6100000000000003\,a} ,   0.5810351605373053\,e^{0.6200000000000003\,a} , 0.5891447579422698\,  e^{0.6300000000000003\,a} , 0.5971954413623923\,e^{  0.6400000000000003\,a} , 0.6051864057360399\,e^{0.6500000000000004\,  a} , 0.6131168519734341\,e^{0.6600000000000004\,a} ,   0.6209859870365599\,e^{0.6700000000000004\,a} , 0.6287930240184688\,  e^{0.6800000000000004\,a} , 0.6365371822219682\,e^{  0.6900000000000004\,a} , 0.6442176872376913\,e^{0.7000000000000004\,  a} , 0.651833771021537\,e^{0.7100000000000004\,a} ,   0.6593846719714734\,e^{0.7200000000000004\,a} , 0.6668696350036982\,  e^{0.7300000000000004\,a} , 0.6742879116281454\,e^{  0.7400000000000004\,a} , 0.6816387600233345\,e^{0.7500000000000004\,  a} , 0.6889214451105516\,e^{0.7600000000000005\,a} ,   0.696135238627357\,e^{0.7700000000000005\,a} , 0.7032794192004105\,e  ^{0.7800000000000005\,a} , 0.7103532724176082\,e^{0.7900000000000005  \,a} , 0.7173560908995231\,e^{0.8000000000000005\,a} ,   0.7242871743701429\,e^{0.8100000000000005\,a} , 0.7311458297268962\,  e^{0.8200000000000005\,a} , 0.7379313711099631\,e^{  0.8300000000000005\,a} , 0.7446431199708596\,e^{0.8400000000000005\,  a} , 0.751280405140293\,e^{0.8500000000000005\,a} ,   0.7578425628952773\,e^{0.8600000000000005\,a} , 0.7643289370255054\,  e^{0.8700000000000006\,a} , 0.7707388788989696\,e^{  0.8800000000000006\,a} , 0.7770717475268242\,e^{0.8900000000000006\,  a} , 0.7833269096274837\,e^{0.9000000000000006\,a} ,   0.7895037396899508\,e^{0.9100000000000006\,a} , 0.7956016200363664\,  e^{0.9200000000000006\,a} , 0.8016199408837775\,e^{  0.9300000000000006\,a} , 0.8075581004051147\,e^{0.9400000000000006\,  a} , 0.8134155047893741\,e^{0.9500000000000006\,a} ,   0.8191915683009986\,e^{0.9600000000000006\,a} , 0.8248857133384504\,  e^{0.9700000000000006\,a} , 0.8304973704919708\,e^{  0.9800000000000006\,a} , 0.8360259786005209\,e^{0.9900000000000007\,  a} \right] 
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>function df(t) &= trigreduce(radcan(sqrt(diff(fx(t),t)^2+diff(fy(t),t)^2)));
+\end{eulerprompt}
+\begin{euleroutput}
+  Maxima said:
+  diff: second argument must be a variable; found errexp1
+   -- an error. To debug this try: debugmode(true);
+  
+  Error in:
+  ... e(radcan(sqrt(diff(fx(t),t)^2+diff(fy(t),t)^2))); ...
+                                                       ^
+\end{euleroutput}
+\begin{eulerprompt}
+>S &=integrate(df(t),t,0,2*%pi); $S // panjang kurva (spiral)
+\end{eulerprompt}
+\begin{euleroutput}
+  Maxima said:
+  defint: variable of integration cannot be a constant; found errexp1
+   -- an error. To debug this try: debugmode(true);
+  
+  Error in:
+  S &=integrate(df(t),t,0,2*%pi); $S // panjang kurva (spiral) ...
+                                ^
+\end{euleroutput}
+\begin{eulerprompt}
+>S(a=0.1) // Panjang kurva untuk a=0.1
+\end{eulerprompt}
+\begin{euleroutput}
+  Function S not found.
+  Try list ... to find functions!
+  Error in:
+  S(a=0.1) // Panjang kurva untuk a=0.1 ...
+          ^
+\end{euleroutput}
+\begin{eulerprompt}
+>a=0.1; plot2d("exp(a*x)*cos(x)","exp(a*x)*cos(x)",r=2,xmin=0,xmax=2*pi):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-203.png}
+\begin{eulerprompt}
+>plot2d("x^2",xmin=-1,xmax=1):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-204.png}
+\begin{eulerprompt}
+>$showev('integrate(sqrt(1+diff(x^2,x)^2),x,-1,1))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\int_{-1}^{1}{\sqrt{4\,x^2+1}\;dx}=\frac{{\rm asinh}\; 2+2\,\sqrt{5  }}{2}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$float(%)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\int_{-1.0}^{1.0}{\sqrt{4.0\,x^2+1.0}\;dx}=2.957885715089195
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>x=-1:0.2:1; y=x^2; plot2d(x,y);  ...
+>  plot2d(x,y,points=1,style="o#",add=1):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-207.png}
+\begin{eulercomment}
+Panjang tersebut dapat dihampiri dengan menggunakan jumlah panjang
+ruas-ruas garis yang menghubungkan titik-titik pada parabola tersebut.
+\end{eulercomment}
+\begin{eulerprompt}
+>i=1:cols(x)-1; sum(sqrt((x[i+1]-x[i])^2+(y[i+1]-y[i])^2))
+\end{eulerprompt}
+\begin{euleroutput}
+  2.95191957027
+\end{euleroutput}
+\begin{eulercomment}
+Hasilnya mendekati panjang yang dihitung secara eksak. Untuk
+mendapatkan hampiran yang cukup akurat, jarak antar titik dapat
+diperkecil, misalnya 0.1, 0.05, 0.01, dan seterusnya. Cobalah Anda
+ulangi perhitungannya dengan nilai-nilai tersebut.
+
+\end{eulercomment}
+\eulersubheading{Koordinat Kartesius}
+\begin{eulercomment}
+Berikut diberikan contoh perhitungan panjang kurva menggunakan
+koordinat Kartesius. Kita akan hitung panjang kurva dengan persamaan
+implisit:
+
+\end{eulercomment}
+\begin{eulerformula}
+\[
+x^3+y^3-3xy=0.
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>z &= x^3+y^3-3*x*y; $z
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+y^3-3\,x\,y+x^3
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>plot2d(z,r=2,level=0,n=100):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-210.png}
+\begin{eulercomment}
+Kita tertarik pada kurva di kuadran pertama.
+\end{eulercomment}
+\begin{eulerprompt}
+>plot2d(z,a=0,b=2,c=0,d=2,level=[-10;0],n=100,contourwidth=3,style="/"):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-211.png}
+\begin{eulercomment}
+Kita selesaikan persamaannya untuk x.
+\end{eulercomment}
+\begin{eulerprompt}
+>$z with y=l*x, sol &= solve(%,x); $sol
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\left[ x=\frac{3\,l}{l^3+1} , x=0 \right] 
+\]
+\end{eulerformula}
+\eulerimg{1}{images/raffi kalkulus-213-large.png}
+\begin{eulercomment}
+Kita gunakan solusi tersebut untuk mendefinisikan fungsi dengan
+Maxima.
+\end{eulercomment}
+\begin{eulerprompt}
+>function f(l) &= rhs(sol[1]); $'f(l)=f(l)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+f\left(l\right)=\frac{3\,l}{l^3+1}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+Fungsi tersebut juga dapat digunaka untuk menggambar kurvanya. Ingat,
+bahwa fungsi tersebut adalah nilai x dan nilai y=l*x, yakni x=f(l) dan
+y=l*f(l).
+\end{eulercomment}
+\begin{eulerprompt}
+>plot2d(&f(x),&x*f(x),xmin=-0.5,xmax=2,a=0,b=2,c=0,d=2,r=1.5):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-215.png}
+\begin{eulerprompt}
+>function ds(l) &= ratsimp(sqrt(diff(f(l),l)^2+diff(l*f(l),l)^2)); $'ds(l)=ds(l)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+{\it ds}\left(l\right)=\frac{\sqrt{9\,l^8+36\,l^6-36\,l^5-36\,l^3+  36\,l^2+9}}{\sqrt{l^{12}+4\,l^9+6\,l^6+4\,l^3+1}}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$integrate(ds(l),l,0,1)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\int_{0}^{1}{\frac{\sqrt{9\,l^8+36\,l^6-36\,l^5-36\,l^3+36\,l^2+9}  }{\sqrt{l^{12}+4\,l^9+6\,l^6+4\,l^3+1}}\;dl}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>2*integrate("ds(x)",0,1)
+\end{eulerprompt}
+\begin{euleroutput}
+  4.91748872168
+\end{euleroutput}
+\begin{eulerprompt}
+>2*romberg(&ds(x),0,1)// perintah Euler lain untuk menghitung nilai hampiran integral yang sama
+\end{eulerprompt}
+\begin{euleroutput}
+  4.91748872168
+\end{euleroutput}
+\begin{eulercomment}
+Perhitungan di datas dapat dilakukan untuk sebarang fungsi x dan y
+dengan mendefinisikan fungsi EMT, misalnya kita beri nama
+panjangkurva. Fungsi ini selalu memanggil Maxima untuk menurunkan
+fungsi yang diberikan.
+\end{eulercomment}
+\begin{eulerprompt}
+>function panjangkurva(fx,fy,a,b) ...
+\end{eulerprompt}
+\begin{eulerudf}
+  ds=mxm("sqrt(diff(@fx,x)^2+diff(@fy,x)^2)");
+  return romberg(ds,a,b);
+  endfunction
+\end{eulerudf}
+\begin{eulerprompt}
+>panjangkurva("x","x^2",-1,1) // cek untuk menghitung panjang kurva parabola sebelumnya
+\end{eulerprompt}
+\begin{euleroutput}
+  2.95788571509
+\end{euleroutput}
+\begin{eulerprompt}
+>2*panjangkurva(mxm("f(x)"),mxm("x*f(x)"),0,1) // cek contoh terakhir, bandingkan hasilnya!
+\end{eulerprompt}
+\begin{euleroutput}
+  4.91748872168
+\end{euleroutput}
+\begin{eulercomment}
+Kita hitung panjang spiral Archimides berikut ini dengan fungsi
+tersebut.
+\end{eulercomment}
+\begin{eulerprompt}
+>plot2d("x*cos(x)","x*sin(x)",xmin=0,xmax=2*pi,square=1):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-218.png}
+\begin{eulerprompt}
+>panjangkurva("x*cos(x)","x*sin(x)",0,2*pi)
+\end{eulerprompt}
+\begin{euleroutput}
+  21.2562941482
+\end{euleroutput}
+\begin{eulerprompt}
+>&kill(ds,x,fx,fy)
+\end{eulerprompt}
+\begin{euleroutput}
+  
+                                   done
+  
+\end{euleroutput}
+\begin{eulerprompt}
+>function ds(fx,fy) &&= sqrt(diff(fx,x)^2+diff(fy,x)^2)
+\end{eulerprompt}
+\begin{euleroutput}
+  
+                             2              2
+                    sqrt(diff (fy, x) + diff (fx, x))
+  
+\end{euleroutput}
+\begin{eulerprompt}
+>sol &= ds(x*cos(x),x*sin(x)); $sol // Kita gunakan untuk menghitung panjang kurva terakhir di atas
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\sqrt{\left(\cos x-x\,\sin x\right)^2+\left(\sin x+x\,\cos x\right)  ^2}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$sol | trigreduce | expand, $integrate(%,x,0,2*pi), %()
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\frac{{\rm asinh}\; \left(2\,\pi\right)+2\,\pi\,\sqrt{4\,\pi^2+1}}{  2}
+\]
+\end{eulerformula}
+\eulerimg{1}{images/raffi kalkulus-221-large.png}
+\begin{euleroutput}
+  21.2562941482
+\end{euleroutput}
+\begin{eulerprompt}
+>plot2d("3*x^2-1","3*x^3-1",xmin=-1/sqrt(3),xmax=1/sqrt(3),square=1):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-222.png}
+\eulerheading{Barisan dan Deret}
+\begin{eulercomment}
+(Catatan: bagian ini belum lengkap. Anda dapat membaca contoh-contoh
+pengguanaan EMT dan Maxima untuk menghitung limit barisan, rumus
+jumlah parsial suatu deret, jumlah tak hingga suatu deret konvergen,
+dan sebagainya. Anda dapat mengeksplor contoh-contoh di EMT atau
+perbagai panduan penggunaan Maxima di software Maxima atau dari
+Internet.)
+
+Barisan dapat didefinisikan dengan beberapa cara di dalam EMT, di
+antaranya:
+
+- dengan cara yang sama seperti mendefinisikan vektor dengan
+elemen-elemen beraturan (menggunakan titik dua ":");\\
+- menggunakan perintah "sequence" dan rumus barisan (suku ke -n);\\
+- menggunakan perintah "iterate" atau "niterate";\\
+- menggunakan fungsi Maxima "create\_list" atau "makelist" untuk
+menghasilkan barisan simbolik;\\
+- menggunakan fungsi biasa yang inputnya vektor atau barisan;\\
+- menggunakan fungsi rekursif.
+
+EMT menyediakan beberapa perintah (fungsi) terkait barisan, yakni:
+
+- sum: menghitung jumlah semua elemen suatu barisan\\
+- cumsum: jumlah kumulatif suatu barisan\\
+- differences: selisih antar elemen-elemen berturutan
+
+EMT juga dapat digunakan untuk menghitung jumlah deret berhingga
+maupun deret tak hingga, dengan menggunakan perintah (fungsi) "sum".
+Perhitungan dapat dilakukan secara numerik maupun simbolik dan eksak.
+
+Berikut adalah beberapa contoh perhitungan barisan dan deret
+menggunakan EMT.
+\end{eulercomment}
+\begin{eulerprompt}
+>1:10 // barisan sederhana
+\end{eulerprompt}
+\begin{euleroutput}
+  [1,  2,  3,  4,  5,  6,  7,  8,  9,  10]
+\end{euleroutput}
+\begin{eulerprompt}
+>1:2:30
+\end{eulerprompt}
+\begin{euleroutput}
+  [1,  3,  5,  7,  9,  11,  13,  15,  17,  19,  21,  23,  25,  27,  29]
+\end{euleroutput}
+\eulerheading{Iterasi dan Barisan}
+\begin{eulercomment}
+EMT menyediakan fungsi iterate("g(x)", x0, n) untuk melakukan iterasi
+
+\end{eulercomment}
+\begin{eulerformula}
+\[
+x_{k+1}=g(x_k), \ x_0=x_0, k= 1, 2, 3, ..., n.
+\]
+\end{eulerformula}
+\begin{eulercomment}
+Berikut ini disajikan contoh-contoh penggunaan iterasi dan rekursi
+dengan EMT. Contoh pertama menunjukkan pertumbuhan dari nilai awal
+1000 dengan laju pertambahan 5\%, selama 10 periode.
+\end{eulercomment}
+\begin{eulerprompt}
+>q=1.05; iterate("x*q",1000,n=10)'
+\end{eulerprompt}
+\begin{euleroutput}
+           1000 
+           1050 
+         1102.5 
+        1157.63 
+        1215.51 
+        1276.28 
+         1340.1 
+         1407.1 
+        1477.46 
+        1551.33 
+        1628.89 
+\end{euleroutput}
+\begin{eulercomment}
+Contoh berikutnya memperlihatkan bahaya menabung di bank pada masa
+sekarang! Dengan bunga tabungan sebesar 6\% per tahun atau 0.5\% per
+bulan dipotong pajak 20\%, dan biaya administrasi 10000 per bulan,
+tabungan sebesar 1 juta tanpa diambil selama sekitar 10 tahunan akan
+habis diambil oleh bank!
+\end{eulercomment}
+\begin{eulerprompt}
+>r=0.005; plot2d(iterate("(1+0.8*r)*x-10000",1000000,n=130)):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-224.png}
+\begin{eulercomment}
+Silakan Anda coba-coba, dengan tabungan minimal berapa agar tidak akan
+habis diambil oleh bank dengan ketentuan bunga dan biaya administrasi
+seperti di atas.
+
+Berikut adalah perhitungan minimal tabungan agar aman di bank dengan
+bunga sebesar r dan biaya administrasi a, pajak bunga 20\%.
+\end{eulercomment}
+\begin{eulerprompt}
+>$solve(0.8*r*A-a,A), $% with [r=0.005, a=10] 
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\left[ A=2500.0 \right] 
+\]
+\end{eulerformula}
+\eulerimg{0}{images/raffi kalkulus-226-large.png}
+\begin{eulercomment}
+Berikut didefinisikan fungsi untuk menghitung saldo tabungan, kemudian
+dilakukan iterasi.
+\end{eulercomment}
+\begin{eulerprompt}
+>function saldo(x,r,a) := round((1+0.8*r)*x-a,2);
+>iterate(\{\{"saldo",0.005,10\}\},1000,n=6)
+\end{eulerprompt}
+\begin{euleroutput}
+  [1000,  994,  987.98,  981.93,  975.86,  969.76,  963.64]
+\end{euleroutput}
+\begin{eulerprompt}
+>iterate(\{\{"saldo",0.005,10\}\},2000,n=6)
+\end{eulerprompt}
+\begin{euleroutput}
+  [2000,  1998,  1995.99,  1993.97,  1991.95,  1989.92,  1987.88]
+\end{euleroutput}
+\begin{eulerprompt}
+>iterate(\{\{"saldo",0.005,10\}\},2500,n=6)
+\end{eulerprompt}
+\begin{euleroutput}
+  [2500,  2500,  2500,  2500,  2500,  2500,  2500]
+\end{euleroutput}
+\begin{eulercomment}
+Tabungan senilai 2,5 juta akan aman dan tidak akan berubah nilai (jika
+tidak ada penarikan), sedangkan jika tabungan awal kurang dari 2,5
+juta, lama kelamaan akan berkurang meskipun tidak pernah dilakukan
+penarikan uang tabungan.
+\end{eulercomment}
+\begin{eulerprompt}
+>iterate(\{\{"saldo",0.005,10\}\},3000,n=6)
+\end{eulerprompt}
+\begin{euleroutput}
+  [3000,  3002,  3004.01,  3006.03,  3008.05,  3010.08,  3012.12]
+\end{euleroutput}
+\begin{eulercomment}
+Barisan Fibonacci memiliki banyak sifat menarik, salah satunya adalah
+akar pangkat ke-n suku ke-n akan konvergen ke pecahan emas:
+\end{eulercomment}
+\begin{eulerprompt}
+>sequence("x[n-1]+x[n-2]",[1,1],15)
+\end{eulerprompt}
+\begin{euleroutput}
+  [1,  1,  2,  3,  5,  8,  13,  21,  34,  55,  89,  144,  233,  377,  610]
+\end{euleroutput}
+\begin{eulercomment}
+Barisan Fibonacci memiliki banyak sifat menarik, salah satunya adalah
+akar pangkat ke-n suku ke-n akan konvergen ke pecahan emas:
+\end{eulercomment}
+\begin{eulerprompt}
+>$'(1+sqrt(5))/2=float((1+sqrt(5))/2)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\frac{\sqrt{5}+1}{2}=1.618033988749895
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>plot2d(sequence("x[n-1]+x[n-2]",[1,1],250)^(1/(1:250))):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-228.png}
+\begin{eulercomment}
+Barisan yang sama juga dapat dihasilkan dengan menggunakan loop.
+\end{eulercomment}
+\begin{eulerprompt}
+>x=ones(500); for k=3 to 500; x[k]=x[k-1]+x[k-2]; end;
+\end{eulerprompt}
+\begin{eulercomment}
+Rekursi dapat dilakukan dengan menggunakan rumus yang tergantung pada
+semua elemen sebelumnya. Pada contoh berikut, elemen ke-n merupakan
+jumlah (n-1) elemen sebelumnya, dimulai dengan 1 (elemen ke-1). Jelas,
+nilai elemen ke-n adalah 2\textasciicircum{}(n-2), untuk n=2, 4, 5, ....
+\end{eulercomment}
+\begin{eulerprompt}
+>sequence("sum(x)",1,10)
+\end{eulerprompt}
+\begin{euleroutput}
+  [1,  1,  2,  4,  8,  16,  32,  64,  128,  256]
+\end{euleroutput}
+\begin{eulercomment}
+Selain menggunakan ekspresi dalam x dan n, kita juga dapat menggunakan
+fungsi.
+
+Pada contoh berikut, digunakan iterasi
+
+\end{eulercomment}
+\begin{eulerformula}
+\[
+x_n =A \cdot x_{n-1},
+\]
+\end{eulerformula}
+\begin{eulercomment}
+dengan A suatu matriks 2x2, dan setiap x[n] merupakan matriks/vektor
+2x1.
+\end{eulercomment}
+\begin{eulerprompt}
+>A=[1,1;1,2]; function suku(x,n) := A.x[,n-1]
+>sequence("suku",[1;1],6)
+\end{eulerprompt}
+\begin{euleroutput}
+  Real 2 x 6 matrix
+  
+              1             2             5            13     ...
+              1             3             8            21     ...
+\end{euleroutput}
+\begin{eulercomment}
+Hasil yang sama juga dapat diperoleh dengan menggunakan fungsi
+perpangkatan matriks "matrixpower()". Cara ini lebih cepat, karena
+hanya menggunakan perkalian matriks sebanyak log\_2(n).
+
+\end{eulercomment}
+\begin{eulerformula}
+\[
+x_n=A.x_{n-1}=A^2.x_{n-2}=A^3.x_{n-3}= ... = A^{n-1}.x_1.
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>sequence("matrixpower(A,n).[1;1]",1,6)
+\end{eulerprompt}
+\begin{euleroutput}
+  Real 2 x 6 matrix
+  
+              1             5            13            34     ...
+              1             8            21            55     ...
+\end{euleroutput}
+\eulerheading{Spiral Theodorus}
+\begin{eulercomment}
+\end{eulercomment}
+\eulerimg{8}{images/raffi kalkulus-231.png}
+\begin{eulercomment}
+Spiral Theodorus (spiral segitiga siku-siku) dapat digambar secara
+rekursif. Rumus rekursifnya adalah:
+
+\end{eulercomment}
+\begin{eulerformula}
+\[
+x_n = \left( 1 + \frac{i}{\sqrt{n-1}} \right) \, x_{n-1}, \quad x_1=1,
+\]
+\end{eulerformula}
+\begin{eulercomment}
+yang menghasilkan barisan bilangan kompleks.
+\end{eulercomment}
+\begin{eulerprompt}
+>function g(n) := 1+I/sqrt(n)
+\end{eulerprompt}
+\begin{eulercomment}
+Rekursinya dapat dijalankan sebanyak 17 untuk menghasilkan barisan 17
+bilangan kompleks, kemudian digambar bilangan-bilangan kompleksnya.
+\end{eulercomment}
+\begin{eulerprompt}
+>x=sequence("g(n-1)*x[n-1]",1,17); plot2d(x,r=3.5); textbox(latex("Spiral\(\backslash\) Theodorus"),0.4):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-233.png}
+\begin{eulercomment}
+Selanjutnya dihubungan titik 0 dengan titik-titik kompleks tersebut
+menggunakan loop.
+\end{eulercomment}
+\begin{eulerprompt}
+>for i=1:cols(x); plot2d([0,x[i]],>add); end:
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-234.png}
+\begin{eulercomment}
+Spiral tersebut juga dapat didefinisikan menggunakan fungsi rekursif,
+yang tidak memmerlukan indeks dan bilangan kompleks. Dalam hal ini
+diigunakan vektor kolom pada bidang.
+\end{eulercomment}
+\begin{eulerprompt}
+>function gstep (v) ...
+\end{eulerprompt}
+\begin{eulerudf}
+  w=[-v[2];v[1]];
+  return v+w/norm(w);
+  endfunction
+\end{eulerudf}
+\begin{eulercomment}
+Jika dilakukan iterasi 16 kali dimulai dari [1;0] akan didapatkan
+matriks yang memuat vektor-vektor dari setiap iterasi.
+\end{eulercomment}
+\begin{eulerprompt}
+>x=iterate("gstep",[1;0],16); plot2d(x[1],x[2],r=3.5,>points):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-235.png}
+\begin{eulercomment}
+\begin{eulercomment}
+\eulerheading{Kekonvergenan}
+\begin{eulercomment}
+Terkadang kita ingin melakukan iterasi sampai konvergen. Apabila
+iterasinya tidak konvergen setelah ditunggu lama, Anda dapat
+menghentikannya dengan menekan tombol [ESC].
+\end{eulercomment}
+\begin{eulerprompt}
+>iterate("cos(x)",1) // iterasi x(n+1)=cos(x(n)), dengan x(0)=1.
+\end{eulerprompt}
+\begin{euleroutput}
+  0.739085133216
+\end{euleroutput}
+\begin{eulercomment}
+Iterasi tersebut konvergen ke penyelesaian persamaan
+
+\end{eulercomment}
+\begin{eulerformula}
+\[
+x = \cos(x).
+\]
+\end{eulerformula}
+\begin{eulercomment}
+Iterasi ini juga dapat dilakukan pada interval, hasilnya adalah
+barisan interval yang memuat akar tersebut.
+\end{eulercomment}
+\begin{eulerprompt}
+>hasil := iterate("cos(x)",~1,2~) //iterasi x(n+1)=cos(x(n)), dengan interval awal (1, 2)
+\end{eulerprompt}
+\begin{euleroutput}
+  ~0.739085133211,0.7390851332133~
+\end{euleroutput}
+\begin{eulerprompt}
+>hasil := iterate("cos(x)",~1,2~) //iterasi x(n+1)=cos(x(n)), dengan interval awal (1, 2)
+\end{eulerprompt}
+\begin{euleroutput}
+  ~0.739085133211,0.7390851332133~
+\end{euleroutput}
+\begin{eulerprompt}
+>function f(x) := (x+2/x)/2
+>iterate("f",2), sqrt(2)
+\end{eulerprompt}
+\begin{euleroutput}
+  1.41421356237
+  1.41421356237
+\end{euleroutput}
+\begin{eulercomment}
+Jika pada perintah iterate diberikan tambahan parameter n, maka hasil
+iterasinya akan ditampilkan mulai dari iterasi pertama sampai ke-n.
+\end{eulercomment}
+\begin{eulerprompt}
+>iterate("f",2,5)
+\end{eulerprompt}
+\begin{euleroutput}
+  [2,  1.5,  1.41667,  1.41422,  1.41421,  1.41421]
+\end{euleroutput}
+\begin{eulercomment}
+Untuk iterasi ini tidak dapat dilakukan terhadap interval.
+\end{eulercomment}
+\begin{eulerprompt}
+>niterate("f",~1,2~,5)
+\end{eulerprompt}
+\begin{euleroutput}
+  [ ~1,2~,  ~1,2~,  ~1,2~,  ~1,2~,  ~1,2~,  ~1,2~ ]
+\end{euleroutput}
+\begin{eulercomment}
+Perhatikan, hasil iterasinya sama dengan interval awal. Alasannya
+adalah perhitungan dengan interval bersifat terlalu longgar. Untuk
+meingkatkan perhitungan pada ekspresi dapat digunakan pembagian
+intervalnya, menggunakan fungsi ieval().
+
+\begin{eulercomment}
+\eulerheading{Iterasi menggunakan Loop yang ditulis Langsung}
+\begin{eulercomment}
+Berikut adalah beberapa contoh penggunaan loop untuk melakukan iterasi
+yang ditulis langsung pada baris perintah.
+\end{eulercomment}
+\begin{eulerprompt}
+>x=2; repeat x=(x+2/x)/2; until x^2~=2; end; x,
+\end{eulerprompt}
+\begin{euleroutput}
+  1.41421356237
+\end{euleroutput}
+\begin{eulercomment}
+Penggabungan matriks menggunakan tanda "\textbar{}" dapat digunakan untuk
+menyimpan semua hasil iterasi.
+\end{eulercomment}
+\begin{eulerprompt}
+>v=[1]; for i=2 to 8; v=v|(v[i-1]*i); end; v,
+\end{eulerprompt}
+\begin{euleroutput}
+  [1,  2,  6,  24,  120,  720,  5040,  40320]
+\end{euleroutput}
+\begin{eulercomment}
+hasil iterasi juga dapat disimpan pada vektor yang sudah ada.
+\end{eulercomment}
+\begin{eulerprompt}
+>v=ones(1,100); for i=2 to cols(v); v[i]=v[i-1]*i; end; ...
+>plot2d(v,logplot=1); textbox(latex(&log(n)),x=0.5):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-237.png}
+\begin{eulerprompt}
+>A =[0.5,0.2;0.7,0.1]; b=[2;2]; ...
+>x=[1;1]; repeat xnew=A.x-b; until all(xnew~=x); x=xnew; end; ...
+>x,
+\end{eulerprompt}
+\begin{euleroutput}
+       -7.09677 
+       -7.74194 
+\end{euleroutput}
+\eulerheading{Iterasi di dalam Fungsi}
+\begin{eulercomment}
+Fungsi atau program juga dapat menggunakan iterasi dan dapat digunakan
+untuk melakukan iterasi. Berikut adalah beberapa contoh iterasi di
+dalam fungsi.
+
+Contoh berikut adalah suatu fungsi untuk menghitung berapa lama suatu
+iterasi konvergen. Nilai fungsi tersebut adalah hasil akhir iterasi
+dan banyak iterasi sampai konvergen.
+\end{eulercomment}
+\begin{eulerprompt}
+>function map hiter(f$,x0) ...
+\end{eulerprompt}
+\begin{eulerudf}
+  x=x0;
+  maxiter=0;
+  repeat
+    xnew=f$(x);
+    maxiter=maxiter+1;
+    until xnew~=x;
+    x=xnew;
+  end;
+  return maxiter;
+  endfunction
+\end{eulerudf}
+\begin{eulercomment}
+Misalnya, berikut adalah iterasi untuk mendapatkan hampiran akar
+kuadrat 2, cukup cepat, konvergen pada iterasi ke-5, jika dimulai dari
+hampiran awal 2.
+\end{eulercomment}
+\begin{eulerprompt}
+>hiter("(x+2/x)/2",2)
+\end{eulerprompt}
+\begin{euleroutput}
+  5
+\end{euleroutput}
+\begin{eulercomment}
+Karena fungsinya didefinisikan menggunakan "map". maka nilai awalnya
+dapat berupa vektor.
+\end{eulercomment}
+\begin{eulerprompt}
+>x=1.5:0.1:10; hasil=hiter("(x+2/x)/2",x); ...
+>  plot2d(x,hasil):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-238.png}
+\begin{eulercomment}
+Dari gambar di atas terlihat bahwa kekonvergenan iterasinya semakin
+lambat, untuk nilai awal semakin besar, namun penambahnnya tidak
+kontinu. Kita dapat menemukan kapan maksimum iterasinya bertambah.
+\end{eulercomment}
+\begin{eulerprompt}
+>hasil[1:10]
+\end{eulerprompt}
+\begin{euleroutput}
+  [4,  5,  5,  5,  5,  5,  6,  6,  6,  6]
+\end{euleroutput}
+\begin{eulerprompt}
+>x[nonzeros(differences(hasil))]
+\end{eulerprompt}
+\begin{euleroutput}
+  [1.5,  2,  3.4,  6.6]
+\end{euleroutput}
+\begin{eulercomment}
+maksimum iterasi sampai konvergen meningkat pada saat nilai awalnya
+1.5, 2, 3.4, dan 6.6.
+
+Contoh berikutnya adalah metode Newton pada polinomial kompleks
+berderajat 3.
+
+\begin{eulercomment}
+\eulerheading{Iterasi Simbolik}
+\begin{eulercomment}
+Seperti sudah dibahas sebelumnya, untuk menghasilkan barisan ekspresi
+simbolik dengan Maxima dapat digunakan fungsi makelist().
+\end{eulercomment}
+\begin{eulerprompt}
+>&powerdisp:true // untuk menampilkan deret pangkat mulai dari suku berpangkat terkecil
+\end{eulerprompt}
+\begin{euleroutput}
+  
+                                   true
+  
+\end{euleroutput}
+\begin{eulerprompt}
+>$deret[3]
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+{\it deret}_{3}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>x=linspace(0,2pi,1000); k=1:100; y=sum(sin(k*x')/k)'; plot2d(x,y):
+\end{eulerprompt}
+\eulerimg{29}{images/raffi kalkulus-240.png}
+\eulerheading{Tabel Fungsi}
+\begin{eulercomment}
+Terdapat cara menarik untuk menghasilkan barisan dengan ekspresi
+Maxima. Perintah mxmtable() berguna untuk menampilkan dan menggambar
+barisan dan menghasilkan barisan sebagai vektor kolom.
+
+Sebagai contoh berikut adalah barisan turunan ke-n x\textasciicircum{}x di x=1.
+\end{eulercomment}
+\begin{eulerprompt}
+>$'sum(k, k, 1, n) = factor(ev(sum(k, k, 1, n),simpsum=true)) // simpsum:menghitung deret secara simbolik
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\sum_{k=1}^{n}{k}=\frac{n\,\left(1+n\right)}{2}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$'sum(1/(3^k+k), k, 0, inf) = factor(ev(sum(1/(3^k+k), k, 0, inf),simpsum=true))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\sum_{k=0}^{\infty }{\frac{1}{k+3^{k}}}=\sum_{k=0}^{\infty }{\frac{  1}{k+3^{k}}}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+Di sini masih gagal, hasilnya tidak dihitung.
+\end{eulercomment}
+\begin{eulerprompt}
+>$'sum(1/x^2, x, 1, inf)= ev(sum(1/x^2, x, 1, inf),simpsum=true) // ev: menghitung nilai ekspresi
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\sum_{x=1}^{\infty }{\frac{1}{x^2}}=\frac{\pi^2}{6}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$'sum((-1)^(k-1)/k, k, 1, inf) = factor(ev(sum((-1)^(x-1)/x, x, 1, inf),simpsum=true))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\sum_{k=1}^{\infty }{\frac{\left(-1\right)^{-1+k}}{k}}=-\sum_{x=1  }^{\infty }{\frac{\left(-1\right)^{x}}{x}}
+\]
+\end{eulerformula}
+\begin{eulercomment}
+Di sini masih gagal, hasilnya tidak dihitung.
+\end{eulercomment}
+\begin{eulerprompt}
+>$'sum((-1)^k/(2*k-1), k, 1, inf) = factor(ev(sum((-1)^k/(2*k-1), k, 1, inf),simpsum=true))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\sum_{k=1}^{\infty }{\frac{\left(-1\right)^{k}}{-1+2\,k}}=\sum_{k=1  }^{\infty }{\frac{\left(-1\right)^{k}}{-1+2\,k}}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$ev(sum(1/n!, n, 0, inf),simpsum=true)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\sum_{n=0}^{\infty }{\frac{1}{n!}}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>&assume(abs(x)<1); $'sum(a*x^k, k, 0, inf)=ev(sum(a*x^k, k, 0, inf),simpsum=true), &forget(abs(x)<1);
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+a\,\sum_{k=0}^{\infty }{x^{k}}=\frac{a}{1-x}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$'sum(x^k/k!,k,0,inf)=ev(sum(x^k/k!,k,0,inf),simpsum=true)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\sum_{k=0}^{\infty }{\frac{x^{k}}{k!}}=\sum_{k=0}^{\infty }{\frac{x
+ ^{k}}{k!}}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$limit(sum(x^k/k!,k,0,n),n,inf)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{n\rightarrow \infty }{\sum_{k=0}^{n}{\frac{x^{k}}{k!}}}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>function d(n) &= sum(1/(k^2-k),k,2,n); $'d(n)=d(n)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+d\left(n\right)=\sum_{k=2}^{n}{\frac{1}{k^2-k}}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$d(10)=ev(d(10),simpsum=true)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\sum_{k=2}^{10}{\frac{1}{k^2-k}}=\frac{9}{10}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$d(100)=ev(d(100),simpsum=true)
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\sum_{k=2}^{100}{\frac{1}{k^2-k}}=\frac{99}{100}
+\]
+\end{eulerformula}
+\eulerheading{Deret Taylor}
+\begin{eulercomment}
+Deret Taylor suatu fungsi f yang diferensiabel sampai tak hingga di
+sekitar x=a adalah:
+
+\end{eulercomment}
+\begin{eulerformula}
+\[
+f(x) = \sum_{k=0}^\infty \frac{(x-a)^k f^{(k)}(a)}{k!}.
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$'e^x =taylor(exp(x),x,0,10) // deret Taylor e^x di sekitar x=0, sampai suku ke-11
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+e^{x}=\frac{x^{10}}{3628800}+\frac{x^9}{362880}+\frac{x^8}{40320}+
+ \frac{x^7}{5040}+\frac{x^6}{720}+\frac{x^5}{120}+\frac{x^4}{24}+
+ \frac{x^3}{6}+\frac{x^2}{2}+x+1
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>$'log(x)=taylor(log(x),x,1,10)// deret log(x) di sekitar x=1
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\log x=x-\frac{\left(x-1\right)^{10}}{10}+\frac{\left(x-1\right)^9
+ }{9}-\frac{\left(x-1\right)^8}{8}+\frac{\left(x-1\right)^7}{7}-
+ \frac{\left(x-1\right)^6}{6}+\frac{\left(x-1\right)^5}{5}-\frac{
+ \left(x-1\right)^4}{4}+\frac{\left(x-1\right)^3}{3}-\frac{\left(x-1
+ \right)^2}{2}-1
+\]
+\end{eulerformula}
+\eulersubheading{Menjawab soal}
+\begin{eulercomment}
+-
+
+\begin{eulercomment}
+\eulerheading{1}
+\begin{eulerprompt}
+>$showev('limit(((x/8)^(1/3)-1)/(x-8),x,8))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{x\rightarrow 8}{\frac{\frac{x^{\frac{1}{3}}}{2}-1}{x-8}}=
+ \frac{1}{24}
+\]
+\end{eulerformula}
+\begin{euleroutput}
+  aspect(5);
+  plot2d(((x/8)^(1/3)-1)/(x-8), [x, 0, 10]);
+  
+\end{euleroutput}
+\begin{eulerprompt}
+>aspect(1.5); plot2d("((x/8)^1/3-1)/(x-8)",0,4); plot2d(3,-4/5,>points,style="ow",>add):
+\end{eulerprompt}
+\eulerimg{19}{images/raffi kalkulus-257.png}
+\begin{eulerprompt}
+>$showev('limit(1/(2*x-1),x,0))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{x\rightarrow 0}{\frac{1}{2\,x-1}}=-1
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>aspect(1.5); plot2d("1/(2*x-1)",0,4); plot2d(3,-4/5,>points,style="ow",>add):
+\end{eulerprompt}
+\eulerimg{19}{images/raffi kalkulus-259.png}
+\begin{eulerprompt}
+>$showev('limit((x^2-3*x-10)/(x-5),x,5))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{x\rightarrow 5}{\frac{x^2-3\,x-10}{x-5}}=7
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>aspect(1.5); plot2d("(x^2-3*x-10)/(x-5)",0,5); plot2d(3,-4/5,>points,style="ow",>add):
+\end{eulerprompt}
+\eulerimg{19}{images/raffi kalkulus-261.png}
+\begin{eulerprompt}
+>$showev('limit(sqrt(x^2+x)-x,x,inf))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{x\rightarrow \infty }{\sqrt{x^2+x}-x}=\frac{1}{2}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>aspect(1.5); plot2d("(sqrt(x^2+x)-x)",0,10); plot2d(3,-4/5,>points,style="ow",>add):
+\end{eulerprompt}
+\eulerimg{19}{images/raffi kalkulus-263.png}
+\begin{eulerprompt}
+>$showev('limit(sin(x^3)/x,x,0))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{x\rightarrow 0}{\frac{\sin x^3}{x}}=0
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>aspect(1.5); plot2d("(sin(x^3)/x)",0,10); plot2d(3,-4/5,>points,style="ow",>add):
+\end{eulerprompt}
+\eulerimg{19}{images/raffi kalkulus-265.png}
+\begin{eulerprompt}
+>$showev('limit((x^2-9)/(2*x^2-5*x-3),x,3))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{x\rightarrow 3}{\frac{x^2-9}{2\,x^2-5\,x-3}}=\frac{6}{7}
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>aspect(1.5); plot2d("(x^2-9)/(2*x^2-5*x-3)",0,10); plot2d(3,-4/5,>points,style="ow",>add):
+\end{eulerprompt}
+\eulerimg{19}{images/raffi kalkulus-267.png}
+\begin{eulerprompt}
+>$showev('limit((1-cos(x))/x,x,0))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{x\rightarrow 0}{\frac{1-\cos x}{x}}=0
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>aspect(1.5); plot2d("(1-cos(x))",0,10); plot2d(3,-4/5,>points,style="ow",>add):
+\end{eulerprompt}
+\eulerimg{19}{images/raffi kalkulus-269.png}
+\begin{eulerprompt}
+>$showev('limit((x^2+abs(x))/(x^2-abs(x)),x,0))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{x\rightarrow 0}{\frac{\left| x\right| +x^2}{x^2-\left| x
+ \right| }}=-1
+\]
+\end{eulerformula}
+\begin{eulerprompt}
+>aspect(1.5); plot2d("(x^2+abs(x))",0,10); plot2d(3,-4/5,>points,style="ow",>add):
+\end{eulerprompt}
+\eulerimg{19}{images/raffi kalkulus-271.png}
+\begin{eulerprompt}
+>$showev('limit((1+x)^(1/x),x,0))
+\end{eulerprompt}
+\begin{eulerformula}
+\[
+\lim_{x\rightarrow 0}{\left(x+1\right)^{\frac{1}{x}}}=e
+\]
+\end{eulerformula}
+\end{eulernotebook}
+\end{document}
